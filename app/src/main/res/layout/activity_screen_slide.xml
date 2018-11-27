@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <LinearLayout
+            android:layout_marginBottom="39dp"
+            android:layout_marginLeft="38dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:background="@drawable/circular_dark"
+                android:layout_width="10dp"
+                android:id="@+id/firstDot"
+                android:layout_marginRight="9dp"
+                android:layout_height="10dp"/>
+
+            <LinearLayout
+                android:background="@drawable/circular"
+                android:layout_marginRight="9dp"
+                android:id="@+id/secondDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"/>
+
+            <LinearLayout
+                android:background="@drawable/circular"
+                android:id="@+id/thirdDot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"/>
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PREV"
+                android:visibility="invisible"
+                android:id="@+id/prev"
+                android:fontFamily="@font/sf_pro_semibold"
+                android:textSize="16dp"
+                android:padding="14dp"
+                android:textColor="@android:color/black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NEXT"
+                android:id="@+id/next"
+                android:fontFamily="@font/sf_pro_semibold"
+                android:textSize="16dp"
+                android:padding="14dp"
+                android:textColor="@android:color/black"
+                />
+
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

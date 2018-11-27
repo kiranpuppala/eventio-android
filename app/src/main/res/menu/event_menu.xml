@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:icon="@drawable/ic_more_vert_black_24dp"
+    >
+        <item android:id="@+id/a"
+            android:title=""
+            app:showAsAction="never" />
+
+        <item android:id="@+id/b"
+            android:title=""
+            app:showAsAction="never" />
+
+        <item android:id="@+id/c"
+            android:title=""
+            app:showAsAction="always" />
+
+        <item android:id="@+id/d"
+            android:title=""
+            app:showAsAction="always" />
+
+        <item android:id="@+id/e"
+            android:title=""
+            app:showAsAction="always" />
+</menu>
