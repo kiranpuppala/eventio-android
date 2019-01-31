@@ -28,6 +28,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -64,14 +65,17 @@ import java.util.Locale;
 
 public class CreateEventActivity extends AppCompatActivity implements LocationListener {
 
-    EditText eventName, description, venue, mobile, social, email, tagInput;
+    CustomDateTimePicker custom;
+    Button btnEventDateTime;
+    EditText eventName, description, venue, mobile, email, tagInput,coordinatorInput;
     public LinearLayout galleryPick, createEvent;
-    public ImageView eventDate, fromTime,toTime, venuePick, eventImage;
-    public TextView addTag,dateText,toTimeText,fromTimeText;
+    public ImageView toDate,fromDate, fromTime,toTime, venuePick, eventImage;
+    public TextView addTag,toDateText, fromDateText, toTimeText,fromTimeText,addCoordinator;
     public TagListAdapter adapter;
+    public CoordinatorListAdapter coordinatorAdapter;
     private String fromTimeString ,toTimeString,date;
-    public ArrayList<String> values;
-    public RecyclerView recyclerView;
+    public ArrayList<String> values,coordinatorsList;
+    public RecyclerView recyclerView,coordinatorListView;
     int SELECT_PICTURE = 111;
     private String selectedImagePath;
     LocationManager locationManager;
@@ -91,24 +95,37 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.HORIZONTAL);
 
+        LinearLayoutManager llms = new LinearLayoutManager(this);
+        llms.setOrientation(LinearLayoutManager.HORIZONTAL);
+
 
         values = new ArrayList<>();
+        coordinatorsList = new ArrayList<>();
         adapter = new TagListAdapter(getBaseContext(), values);
+        coordinatorAdapter = new CoordinatorListAdapter(getBaseContext(), coordinatorsList);
 
         recyclerView = findViewById(R.id.tagList);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(adapter);
 
+        coordinatorListView = findViewById(R.id.coordinatorListView);
+        coordinatorListView.setLayoutManager(llms);
+        coordinatorListView.setAdapter(coordinatorAdapter);
+
         eventName = findViewById(R.id.eventName);
         description = findViewById(R.id.description);
         venue = findViewById(R.id.venue);
         mobile = findViewById(R.id.mobile);
-        social = findViewById(R.id.social);
         email = findViewById(R.id.email);
+
         tagInput = findViewById(R.id.tagInput);
+        coordinatorInput = findViewById(R.id.coordinatorInput);
 
         addTag = findViewById(R.id.addTag);
         addTag.setOnClickListener(listener);
+
+        addCoordinator = findViewById(R.id.addCoordinator);
+        addCoordinator.setOnClickListener(listener);
 
         galleryPick = findViewById(R.id.galleryPick);
         galleryPick.setOnClickListener(listener);
@@ -125,20 +142,22 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
         createEvent = findViewById(R.id.createEvent);
         createEvent.setOnClickListener(submitListener);
 
-        eventDate = findViewById(R.id.eventDate);
-        eventDate.setOnClickListener(listener);
+        toDate = findViewById(R.id.toDate);
+        toDate.setOnClickListener(listener);
+        fromDate = findViewById(R.id.fromDate);
+        fromDate.setOnClickListener(listener);
         fromTime = findViewById(R.id.fromTime);
         toTime = findViewById(R.id.toTime);
         venuePick = findViewById(R.id.venuePick);
         venuePick.setOnClickListener(listener);
         eventImage = findViewById(R.id.eventImage);
-        dateText = findViewById(R.id.dateText);
+        toDateText = findViewById(R.id.toDateText);
+        fromDateText = findViewById(R.id.fromDateText);
         fromTimeText = findViewById(R.id.fromTimeText);
         toTimeText = findViewById(R.id.toTimeText);
 
         pd = new ProgressDialog(this);
         pd.setMessage("Fetching current location");
-
     }
 
 
@@ -157,7 +176,6 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     json.put("to_time",toTimeString);
                     json.put("venue",venue.getText().toString());
                     json.put("mobile",mobile.getText().toString());
-                    json.put("social",social.getText().toString());
                     json.put("email",email.getText().toString());
 
                     Log.d("PAYLOAD", json.toString());
@@ -180,7 +198,6 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
             if (!isEmpty(description.getText().toString())) {
                 if (!isEmpty(venue.getText().toString())) {
                     if (!isEmpty(mobile.getText().toString())) {
-                        if (!isEmpty(social.getText().toString())) {
                             if (!isEmpty(email.getText().toString())) {
                                 if(!isEmpty(values.toString())){
                                     if(!isEmpty(toTimeString)){
@@ -192,7 +209,6 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                                     }
                                 }
                             }
-                        }
                     }
                 }
 
@@ -212,8 +228,11 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     break;
                 case R.id.createEvent:
                     break;
-                case R.id.eventDate:
-                    handleDate();
+                case R.id.toDate:
+                    handleDate("toDate");
+                    break;
+                case R.id.fromDate:
+                    handleDate("fromDate");
                     break;
                 case R.id.fromTime:
                     handleTimings("fromTime");
@@ -226,6 +245,9 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     break;
                 case R.id.addTag:
                     handleTagInput();
+                    break;
+                case R.id.addCoordinator:
+                    handleCoordinatorInput();
                     break;
 
 
@@ -279,7 +301,7 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                 "Select Picture"), SELECT_PICTURE);
     }
 
-    public void handleDate() {
+    public void handleDate(final String mode) {
         final Calendar c = Calendar.getInstance();
         int mYear = c.get(Calendar.YEAR);
         int mMonth= c.get(Calendar.MONTH);
@@ -292,7 +314,10 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
                         date = dayOfMonth+"-"+monthOfYear+"-"+year;
-                        dateText.setText(dayOfMonth+"-"+monthOfYear+"-"+year);
+                        if(mode.equals("toDate"))
+                            toDateText.setText(dayOfMonth+"-"+monthOfYear+"-"+year);
+                        else
+                            fromDateText.setText(dayOfMonth+"-"+monthOfYear+"-"+year);
 
                     }
                 }, mYear, mMonth, mDay);
@@ -304,6 +329,15 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
         if (!isEmpty(tag)) {
             values.add(tag);
             adapter.notifyDataSetChanged();
+        }
+
+    }
+
+    public void handleCoordinatorInput() {
+        String tag = coordinatorInput.getText().toString();
+        if (!isEmpty(tag)) {
+            coordinatorsList.add(tag);
+            coordinatorAdapter.notifyDataSetChanged();
         }
 
     }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="wrap_content"
+    android:background="@drawable/coordinator_chip_background"
+    android:gravity="center_vertical"
+    android:layout_marginRight="5dp"
+    android:paddingLeft="3dp"
+    android:paddingRight="3dp"
+    android:layout_height="34dp">
+
+    <LinearLayout
+        android:background="@drawable/circular"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+    
+    <TextView
+        android:layout_marginLeft="3dp"
+        android:text="Fashion"
+        android:fontFamily="@font/sf_pro_regular"
+        android:textColor="@android:color/white"
+        android:textSize="12dp"
+        android:id="@+id/tagText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+    
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/chipDelete"
+        android:src="@drawable/ic_cancel_white_24dp"
+        />
+
+</LinearLayout>

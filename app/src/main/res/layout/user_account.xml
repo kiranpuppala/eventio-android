@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
-    </data>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/userAccount"
     android:layout_height="match_parent">
 
     <android.support.v7.widget.Toolbar
@@ -39,14 +36,45 @@
                 />
 
 
-            <ImageView
-                android:id="@+id/eventImage"
-                android:background="@android:color/darker_gray"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_marginBottom="10dp"
-                android:layout_height="300dp" />
+                android:layout_height="300dp"
+                android:gravity="center"
+                android:background="@android:color/darker_gray">
 
-        <LinearLayout
+                <ImageView
+                    android:id="@+id/eventImage"
+                    android:background="@android:color/darker_gray"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <LinearLayout
+                    android:layout_centerInParent="true"
+                    android:id="@+id/galleryPick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gallery"
+                        android:layout_marginRight="10dp"
+                        android:fontFamily="@font/sf_pro_bold"
+                        android:textSize="20dp"
+                        />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_mode_edit_black_24dp"
+                        />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+
+            <LinearLayout
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
@@ -54,15 +82,39 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include  layout="@layout/editable_text_layout" app:title="@{@string/app_name}" android:id="@+id/name"/>
-            <include  layout="@layout/editable_text_layout" android:id="@+id/name"/>
-            <include  layout="@layout/editable_text_layout" android:id="@+id/name"/>
-            <include  layout="@layout/editable_text_layout" android:id="@+id/name"/>
-            <include  layout="@layout/editable_text_layout" android:id="@+id/name"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/firstname"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/lastname"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/regno"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/degree"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/branch"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/mobile"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/email"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/password"/>
+
+            <LinearLayout
+                android:id="@+id/updateProfile"
+                android:background="@drawable/rounded_button"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UPDATE PROFILE"
+                    android:fontFamily="@font/sf_pro_medium"
+                    android:textSize="16dp"
+                    android:textColor="#fff"
+                    />
+
+            </LinearLayout>
+
 
         </LinearLayout>
         </LinearLayout>
 
     </ScrollView>
 </LinearLayout>
-</layout>

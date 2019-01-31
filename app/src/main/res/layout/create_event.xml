@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
+    android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -193,43 +194,40 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal"
+                   <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
                     android:layout_height="wrap_content">
 
                     <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_marginRight="20dp"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <LinearLayout
-                            android:orientation="horizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Event Date"
-                                android:textColor="#000"
-                                android:alpha="0.75"
-                                android:textSize="14dp"
-                                android:fontFamily="@font/sf_pro_medium"
-                                />
-
-                        </LinearLayout>
-
-
-                        <LinearLayout
-                            android:layout_marginTop="10dp"
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal" >
+                            android:text="Event Date"
+                            android:textColor="#000"
+                            android:alpha="0.75"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/sf_pro_medium"
+                            />
+                    </LinearLayout>
 
+
+                    <LinearLayout
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" >
+
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
 
                             <ImageView
                                 android:layout_width="16dp"
@@ -241,8 +239,8 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:id="@+id/dateText"
-                                android:text="Date"
+                                android:id="@+id/fromDateText"
+                                android:text="From"
                                 android:textSize="12dp"
                                 android:textColor="#000"
                                 android:alpha="0.5"
@@ -255,7 +253,7 @@
                                 android:layout_height="wrap_content"/>
 
                             <ImageView
-                                android:id="@+id/eventDate"
+                                android:id="@+id/fromDate"
                                 android:src="@drawable/ic_mode_edit_black_24dp"
                                 android:layout_width="16dp"
                                 android:layout_height="16dp" />
@@ -263,13 +261,52 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_width="30dp"
+                            android:layout_height="wrap_content"/>
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_marginRight="4dp"
+                                    android:src="@drawable/ic_date_range_black_24dp"
+                                    />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/toDateText"
+                                    android:text="To"
+                                    android:textSize="12dp"
+                                    android:textColor="#000"
+                                    android:alpha="0.5"
+                                    android:fontFamily="@font/sf_pro_regular"
+                                    />
+                                <LinearLayout
+                                    android:layout_weight="1"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"/>
+
+                                <ImageView
+                                    android:id="@+id/toDate"
+                                    android:src="@drawable/ic_mode_edit_black_24dp"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp" />
+                        </LinearLayout>
+
 
                     </LinearLayout>
 
+
                     <LinearLayout
+                        android:layout_marginTop="20dp"
                         android:orientation="vertical"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
                         <LinearLayout
@@ -297,61 +334,83 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal" >
 
+                            <LinearLayout
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content">
 
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:layout_marginRight="4dp"
-                                android:src="@drawable/ic_access_time_black_24dp"
-                                />
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_marginRight="4dp"
+                                    android:src="@drawable/ic_access_time_black_24dp"
+                                    />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="From"
-                                android:textSize="12dp"
-                                android:id="@+id/fromTimeText"
-                                android:textColor="#000"
-                                android:alpha="0.5"
-                                android:fontFamily="@font/sf_pro_regular"
-                                />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="From"
+                                    android:textSize="12dp"
+                                    android:id="@+id/fromTimeText"
+                                    android:textColor="#000"
+                                    android:alpha="0.5"
+                                    android:fontFamily="@font/sf_pro_regular"
+                                    />
 
-                            <ImageView
-                                android:layout_marginLeft="5dp"
-                                android:id="@+id/fromTime"
-                                android:src="@drawable/ic_mode_edit_black_24dp"
-                                android:layout_width="16dp"
-                                android:layout_height="16dp" />
+                                <LinearLayout
+                                    android:layout_weight="1"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"/>
+
+                                <ImageView
+                                    android:layout_marginLeft="5dp"
+                                    android:id="@+id/fromTime"
+                                    android:src="@drawable/ic_mode_edit_black_24dp"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="30dp"
+                                android:layout_height="wrap_content"/>
 
                             <LinearLayout
                                 android:layout_weight="1"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"/>
+                                android:layout_height="wrap_content">
 
-                            <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:layout_marginRight="4dp"
-                                android:src="@drawable/ic_access_time_black_24dp"
-                                />
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_marginRight="4dp"
+                                    android:src="@drawable/ic_access_time_black_24dp"
+                                    />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="To"
-                                android:id="@+id/toTimeText"
-                                android:textSize="12dp"
-                                android:textColor="#000"
-                                android:alpha="0.5"
-                                android:fontFamily="@font/sf_pro_regular"
-                                />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="To"
+                                    android:id="@+id/toTimeText"
+                                    android:textSize="12dp"
+                                    android:textColor="#000"
+                                    android:alpha="0.5"
+                                    android:fontFamily="@font/sf_pro_regular"
+                                    />
 
-                            <ImageView
-                                android:id="@+id/toTime"
-                                android:layout_marginLeft="5dp"
-                                android:src="@drawable/ic_mode_edit_black_24dp"
-                                android:layout_width="16dp"
-                                android:layout_height="16dp" />
+                                <LinearLayout
+                                    android:layout_weight="1"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"/>
+
+                                <ImageView
+                                    android:id="@+id/toTime"
+                                    android:layout_marginLeft="5dp"
+                                    android:src="@drawable/ic_mode_edit_black_24dp"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp" />
+
+                            </LinearLayout>
 
 
                         </LinearLayout>
@@ -408,6 +467,8 @@
                     android:fontFamily="@font/sf_pro_medium"
                     />
 
+
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -419,43 +480,44 @@
                     android:fontFamily="@font/sf_pro_medium"
                     />
 
-
                 <LinearLayout
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    >
 
-                    <LinearLayout
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/circular"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"/>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/coordinatorListView"
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
-                    <LinearLayout
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/circular"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"/>
-
-                    <LinearLayout
-                        android:layout_marginRight="10dp"
-                        android:background="@drawable/circular"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"/>
+                    <EditText
+                        android:id="@+id/coordinatorInput"
+                        android:layout_width="50dp"
+                        android:maxLines="1"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/sf_pro_bold"
+                        android:textSize="16dp"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Add Person"
                         android:textSize="12dp"
+                        android:id="@+id/addCoordinator"
                         android:fontFamily="@font/sf_pro_regular"
                         android:textColor="@android:color/black"
                         android:alpha="0.5"/>
 
 
                 </LinearLayout>
+
+
+
 
                 <TextView
                     android:layout_marginTop="20dp"
@@ -490,26 +552,6 @@
                     android:fontFamily="@font/sf_pro_medium"
                     />
 
-
-                <TextView
-                    android:layout_marginTop="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Social"
-                    android:textSize="12dp"
-                    android:textColor="@android:color/black"
-                    android:alpha="0.54"
-                    android:fontFamily="@font/sf_pro_medium"
-                    />
-
-                <EditText
-                    android:id="@+id/social"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="+91 9090282020"
-                    android:fontFamily="@font/sf_pro_semibold"
-                    android:textSize="16dp"
-                    />
 
                 <TextView
                     android:id="@+id/socialErr"
@@ -580,6 +622,8 @@
 
 
             </LinearLayout>
+
+
 
 
 

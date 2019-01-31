@@ -1,5 +1,10 @@
 package com.app.kiranpuppala.event;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
@@ -12,11 +17,13 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TypefaceSpan;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,12 +37,16 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = "MAIN_ACTIVITY";
+    AccountManager am;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_list);
+        authenticate();
+    }
 
-
+    private void renderContent(){
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         ArrayList<String> values = new ArrayList<>(Arrays.asList("a", "b","c"));
         RecyclerAdapter adapter = new RecyclerAdapter(getBaseContext(),values);
@@ -43,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(adapter);
+
+
 
         findViewById(R.id.menu_click).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,9 +75,48 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
+    private void authenticate(){
+        am = AccountManager.get(this);
+        Account account[] = (am.getAccountsByType(GetInActivity.ARG_ACCOUNT_TYPE));
+        if(account.length!=0){
+            final AccountManagerFuture<Bundle> future = am.getAuthToken(account[0], GetInActivity.ARG_AUTH_TYPE, null, this, null, null);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Bundle bnd = future.getResult();
+                        final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                        Log.e(LOG_TAG,"AUTH_TOKEN " + authtoken);
+                        renderContent();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }else {
+            addNewAccount(GetInActivity.ARG_ACCOUNT_TYPE,GetInActivity.ARG_AUTH_TYPE);
+        }
 
     }
+
+    private void addNewAccount(String accountType, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = am.addAccount(accountType, authTokenType, null, null, this, new AccountManagerCallback<Bundle>() {
+            @Override
+            public void run(AccountManagerFuture<Bundle> future) {
+                try {
+                    Bundle bnd = future.getResult();
+                    Log.d("udinic", "AddNewAccount Bundle is " + bnd);
+                    authenticate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, null);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
-        <variable name="title" type="java.lang.String"/>
-    </data>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_marginBottom="10dp"
     android:layout_height="wrap_content">
 
     <LinearLayout
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@{title}"
+            android:text="Description"
             android:textSize="12dp"
+            android:id="@+id/title"
             android:textColor="@android:color/black"
             android:alpha="0.54"
             android:fontFamily="@font/sf_pro_medium"
@@ -28,28 +25,36 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"/>
         <ImageView
-            android:id="@+id/eventDate"
+            android:id="@+id/editContent"
             android:src="@drawable/ic_mode_edit_black_24dp"
             android:layout_width="16dp"
             android:layout_height="16dp" />
 
     </LinearLayout>
 
+    <TextView
+        android:layout_marginTop="10dp"
+        android:id="@+id/descDisplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lorem ipsu"
+        android:fontFamily="@font/sf_pro_bold"
+        android:textSize="16dp"
+        />
 
     <EditText
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Lorem ipsu"
-            android:fontFamily="@font/sf_pro_bold"
-            android:textSize="16dp"
-            />
+        android:id="@+id/descEdit"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/sf_pro_bold"
+        android:textSize="16dp"
+        />
 
     <TextView
-        android:id="@+id/eventDescErr"
+        android:id="@+id/descErr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This is help text"
         android:textSize="12dp"
         android:visibility="gone"
         android:layout_marginTop="5dp"
@@ -59,4 +64,3 @@
         />
 
 </LinearLayout>
-</layout>

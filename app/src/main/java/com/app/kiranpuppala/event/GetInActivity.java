@@ -1,5 +1,8 @@
 package com.app.kiranpuppala.event;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -12,17 +15,38 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.ResponseCallback;
+import com.app.kiranpuppala.event.utils.Session;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
-public class GetInActivity extends AppCompatActivity {
 
+public class GetInActivity extends AccountAuthenticatorActivity {
+
+    private static final String LOG_TAG= "GET_IN_ACTIVITY";
     TextInputLayout email,firstname,lastname,password,confirmpassword;
     TextView action_button;
     TextView footer_text,footer_text_ext;
-    String mode = "LOGIN"; //default
+    String mode = "LOGIN";
+
+    public static String KEY_AUTH_TYPE = "authType";
+    public static String KEY_IS_ADDING_NEW_ACCOUNT = "isNewAccount";
+
+    public static String ARG_ACCOUNT_TYPE = "com.app.kiranpuppala.event";
+    public static String ARG_AUTH_TYPE = "USER_LOGIN";
+
+
+    AccountManager mAccountManager ;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +63,14 @@ public class GetInActivity extends AppCompatActivity {
         action_button.setOnClickListener(onClickListener);
         footer_text_ext.setOnClickListener(onClickListener);
 
+        String ref_id = Session.get(getBaseContext(),"ref_id");
+        if(ref_id!=null){
+            Intent intent = new Intent(GetInActivity.this,MainActivity.class);
+            startActivity(intent);
+        }else
         renderAccordingToMode();
+
+        mAccountManager = AccountManager.get(this);
     }
 
     private void renderAccordingToMode(){
@@ -86,17 +117,32 @@ public class GetInActivity extends AppCompatActivity {
                 request.put("first_name",firstname.getEditText().getText().toString());
                 request.put("last_name",lastname.getEditText().getText().toString());
             }
+
             ApiClient.makeRequest(GetInActivity.this, request,Request.Method.POST,path,new ResponseCallback(){
                 @Override
                 public void onResponse(JSONObject jsonObject) {
                     try {
                         Log.d("JSON RESPONSE",jsonObject.getInt("code")+"");
-//                        if(jsonObject.getInt("code")==200){
-                            Intent intent = new Intent(GetInActivity.this,MainActivity.class);
-                            startActivity(intent);
-//                        }else{
-//                            Toast.makeText(GetInActivity.this,"wrong email or password",Toast.LENGTH_SHORT).show();
-//                        }
+                        if(jsonObject.getInt("code")==200){
+
+                            JSONObject res = (JSONObject) jsonObject.get("response");
+
+                            final Intent intent = new Intent();
+                            intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, email.getEditText().getText().toString());
+                            intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, ARG_ACCOUNT_TYPE);
+                            intent.putExtra(AccountManager.KEY_AUTHTOKEN, res.getString("token"));
+                            intent.putExtra(AccountManager.KEY_PASSWORD, password.getEditText().getText().toString());
+
+                            Session.set(getBaseContext(),"ref_id",email.getEditText().getText().toString());
+
+                            finishLogin(intent);
+
+
+//                            Intent intent = new Intent(GetInActivity.this,MainActivity.class);
+//                            startActivity(intent);
+                        }else{
+                            Toast.makeText(GetInActivity.this,"wrong email or password",Toast.LENGTH_SHORT).show();
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -108,5 +154,29 @@ public class GetInActivity extends AppCompatActivity {
         }
     }
 
+    private void finishLogin(Intent intent) {
+        String accountName = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+        String accountPassword = intent.getStringExtra(AccountManager.KEY_PASSWORD);
+        final Account account = new Account(accountName, intent.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE));
+        if (getIntent().getBooleanExtra(KEY_IS_ADDING_NEW_ACCOUNT, false)) {
+            String authtoken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
+            String authtokenType = ARG_AUTH_TYPE;
+            // Creating the account on the device and setting the auth token we got
+            // (Not setting the auth token will cause another call to the server to authenticate the user)
+            mAccountManager.addAccountExplicitly(account, accountPassword, null);
+            mAccountManager.setAuthToken(account, authtokenType, authtoken);
+        } else {
+            mAccountManager.setPassword(account, accountPassword);
+        }
+        setAccountAuthenticatorResult(intent.getExtras());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+    }
 
 }

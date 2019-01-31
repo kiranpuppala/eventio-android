@@ -3,7 +3,23 @@
     package="com.app.kiranpuppala.event">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.AUTHENTICATE_ACCOUNTS"
+        android:maxSdkVersion="22" />
+    <uses-permission
+        android:name="android.permission.GET_ACCOUNTS"
+        android:maxSdkVersion="22" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.MANAGE_ACCOUNTS"
+        android:maxSdkVersion="22" />
+    <uses-permission
+        android:name="android.permission.USE_CREDENTIALS"
+        android:maxSdkVersion="22" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>;
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>;
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
     <application
         android:usesCleartextTraffic="true"
@@ -16,17 +32,23 @@
         <activity
             android:theme="@style/AppTheme"
             android:name=".MainActivity">
-
-        </activity>
-
-        <activity android:name=".GetInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
 
             </intent-filter>
-
         </activity>
+
+        <activity android:name=".GetInActivity"/>
+
+
+        <service android:name=".AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
 
 
         <activity android:name=".UserAccountActivity">
@@ -57,6 +79,11 @@
             android:launchMode="singleTask"
             android:name=".Menu_Activity"/>
         <activity android:name=".EventManagementActivity"/>
+
+       <service
+        android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+        android:enabled="true" />;
+
     </application>
 
 </manifest>
