@@ -1,25 +1,22 @@
 package com.app.kiranpuppala.event;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.text.style.TypefaceSpan;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.support.v7.widget.Toolbar;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.bumptech.glide.Glide;
+
+import org.json.JSONObject;
 
 public class EventDescriptionActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = "EVENT_DESCR_ACTIVITY";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,44 +26,28 @@ public class EventDescriptionActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_more_vert_black_24dp);
-//        toolbar.setOverflowIcon(drawable);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.event_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.a:
-                //Write your code
-                return true;
-            case R.id.b:
-                //Write your code
-                return true;
-            case R.id.c:
-                //Write your code
-                return true;
-            case R.id.d:
-                //Write your code
-                return true;
-            case R.id.e:
-                //Write your code
-                return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
+        if (getIntent() != null && getIntent().getStringExtra("inputPayload") != null) {
+            Log.e(LOG_TAG, getIntent().getStringExtra("inputPayload"));
+            inflateView(getIntent().getStringExtra("inputPayload"));
         }
     }
+
+    private void inflateView(String inputPayload){
+        try{
+            JSONObject payload = new JSONObject(inputPayload);
+            Log.e(LOG_TAG,payload.getString("graphic"));
+            Glide.with((findViewById(R.id.image))).load(payload.optString("graphic",""));
+            ((TextView)(findViewById(R.id.name))).setText(payload.optString("name",""));
+            ((TextView)(findViewById(R.id.description))).setText(payload.optString("description",""));
+            String timings = payload.optString("from_date","")+" , "+payload.optString("from_time","")+" to "+
+                    payload.optString("to_date",""+payload.optString("to_time",""));
+            ((TextView)(findViewById(R.id.timings))).setText(timings);
+            ((TextView)(findViewById(R.id.venue))).setText("venue");
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
 }

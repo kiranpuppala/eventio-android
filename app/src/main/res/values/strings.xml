@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Eventio</string>
+    <string-array name="event_category">
+        <item>Select Category</item>
+        <item>Science &amp; Technology</item>
+        <item>Arts</item>
+        <item>Drama</item>
+    </string-array>
 </resources>

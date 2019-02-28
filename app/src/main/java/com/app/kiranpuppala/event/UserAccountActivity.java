@@ -179,7 +179,7 @@ public class UserAccountActivity extends AppCompatActivity {
 
     private void setProfile(){
         String ref_id = Session.get(getBaseContext(),"ref_id");
-        ApiClient.makeRequest(UserAccountActivity.this, null, Request.Method.GET, ApiClient.GET_PROFILE_PATH + "?ref_id=" + ref_id, new ResponseCallback() {
+        ApiClient.makeRequest(UserAccountActivity.this, null,null, Request.Method.GET, ApiClient.GET_PROFILE_PATH + "?ref_id=" + ref_id, new ResponseCallback() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try{
@@ -201,7 +201,6 @@ public class UserAccountActivity extends AppCompatActivity {
                         ((EditText)(branch.findViewById(R.id.descEdit))).setText(response.getString("branch"));
                         ((EditText)(mobile.findViewById(R.id.descEdit))).setText(response.getString("mobile"));
                         ((EditText)(email.findViewById(R.id.descEdit))).setText(response.getString("email"));
-
 
 
                         profileObject = response;
@@ -279,7 +278,7 @@ public class UserAccountActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         }
-                        ApiClient.makeRequest(UserAccountActivity.this, profileObject, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
+                        ApiClient.makeRequest(UserAccountActivity.this, profileObject,null, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
                             @Override
                             public void onResponse(JSONObject jsonObject) {
                                 Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
@@ -289,7 +288,7 @@ public class UserAccountActivity extends AppCompatActivity {
                 });
             }
         }catch (Exception e){
-            ApiClient.makeRequest(UserAccountActivity.this, profileObject, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
+            ApiClient.makeRequest(UserAccountActivity.this, profileObject,null, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
                 @Override
                 public void onResponse(JSONObject jsonObject) {
                     Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();

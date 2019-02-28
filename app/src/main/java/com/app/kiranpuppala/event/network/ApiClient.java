@@ -1,6 +1,7 @@
 package com.app.kiranpuppala.event.network;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -12,6 +13,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -51,9 +53,12 @@ import javax.net.ssl.SSLSocketFactory;
 public class ApiClient {
 
     public static String LOGIN_PATH = "/api/login";
+    public static String VALIDATE_TOKEN = "/api/validate-token";
     public static String SIGNUP_PATH = "/api/register";
     public static String EDIT_PROFILE_PATH = "/api/edit-profile";
     public static String GET_PROFILE_PATH = "/api/get-profile";
+    public static String CREATE_EVENT_PATH = "/api/create-event";
+    public static String LIST_EVENTS_PATH = "/api/list-events";
     private static  String S3_URL = "https://s3.ap-south-1.amazonaws.com/homework-event/";
 
 
@@ -71,11 +76,14 @@ public class ApiClient {
             connection.setRequestMethod("POST");
 //            connection.setSSLSocketFactory(new TLSSocketFactory());
             if(requestHeaders!=null)
-            connection.setRequestProperty("Authorization", requestHeaders.get("Authorization"));
+                connection.setRequestProperty("authorization", requestHeaders.get("authorization"));
+
             connection.setDoOutput(true);
 
             OutputStream stream = connection.getOutputStream();
-            stream.write(generateQueryString(requestPayload).getBytes());
+
+            if(requestPayload!=null)
+                stream.write(generateQueryString(requestPayload).getBytes());
 
             Map<String, List<String>> responseHeaders;
 
@@ -105,7 +113,7 @@ public class ApiClient {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return "";
         }
     }
 
@@ -123,7 +131,7 @@ public class ApiClient {
     }
 
 
-    public static void makeRequest(Context context, final JSONObject request, int methodType, String path, final ResponseCallback responseCallback) {
+    public static void makeRequest(Context context, final JSONObject request, final Map<String,String> headers, int methodType, String path, final ResponseCallback responseCallback) {
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         String URL = context.getResources().getString(context.getResources().getIdentifier("api_url", "string", context.getPackageName())) + path;
 
@@ -135,19 +143,22 @@ public class ApiClient {
                     }
                 }, new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
 
-        }) {
-
-        };
+                }){
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String,String> requestHeaders = new HashMap<>();
+                        if(headers!=null)
+                            requestHeaders=  headers;
+                        return requestHeaders;
+                }};
         requestQueue.add(jsonRequest);
     }
 
     public static void uploadtos3(final Context context, final File file, final ResponseCallback responseCallback) {
-        String nnn ="df";
-
         if(file !=null){
             CognitoCachingCredentialsProvider credentialsProvider;
             credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -177,7 +188,6 @@ public class ApiClient {
                         Toast.makeText(context,"Failed to upload",Toast.LENGTH_LONG).show();
                         responseCallback.onResponse(RESPONSE_CODE.FAILURE,null);
                     }
-
                 }
 
                 @Override
@@ -190,6 +200,8 @@ public class ApiClient {
 
                 }
             });
+        }else {
+            responseCallback.onResponse(RESPONSE_CODE.FAILURE,null);
         }
         }
 

@@ -118,7 +118,7 @@ public class GetInActivity extends AccountAuthenticatorActivity {
                 request.put("last_name",lastname.getEditText().getText().toString());
             }
 
-            ApiClient.makeRequest(GetInActivity.this, request,Request.Method.POST,path,new ResponseCallback(){
+            ApiClient.makeRequest(GetInActivity.this, request,null,Request.Method.POST,path,new ResponseCallback(){
                 @Override
                 public void onResponse(JSONObject jsonObject) {
                     try {
@@ -134,9 +134,7 @@ public class GetInActivity extends AccountAuthenticatorActivity {
                             intent.putExtra(AccountManager.KEY_PASSWORD, password.getEditText().getText().toString());
 
                             Session.set(getBaseContext(),"ref_id",email.getEditText().getText().toString());
-
                             finishLogin(intent);
-
 
 //                            Intent intent = new Intent(GetInActivity.this,MainActivity.class);
 //                            startActivity(intent);

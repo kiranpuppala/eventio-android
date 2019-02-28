@@ -30,6 +30,7 @@
                 android:text="Event"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
+                android:id="@+id/name"
                 android:textColor="#000"
                 android:fontFamily="@font/sf_pro_bold"
                 android:textSize="24dp"
@@ -40,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="15dp"
+                android:id="@+id/image"
                 android:src="@drawable/event_show_background"
                 />
 
@@ -67,6 +69,7 @@
                 android:textColor="#000"
                 android:layout_marginTop="10dp"
                 android:alpha="0.5"
+                android:id="@+id/description"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Color sit amet, consectetur D…"
                 android:fontFamily="@font/sf_pro_regular"
                 />
@@ -89,6 +92,7 @@
                 android:textColor="#000"
                 android:layout_marginTop="10dp"
                 android:alpha="0.5"
+                android:id="@+id/timings"
                 android:text="12-08-2018, Thursday"
                 android:fontFamily="@font/sf_pro_regular"
                 />
@@ -111,29 +115,8 @@
                 android:textColor="#000"
                 android:layout_marginTop="10dp"
                 android:alpha="0.5"
+                android:id="@+id/venue"
                 android:text="13th block, Baker Street"
-                android:fontFamily="@font/sf_pro_regular"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Duty Leave"
-                android:textColor="#000"
-                android:alpha="0.75"
-                android:layout_marginTop="20dp"
-                android:textSize="14dp"
-                android:fontFamily="@font/sf_pro_medium"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14dp"
-                android:textColor="#000"
-                android:layout_marginTop="10dp"
-                android:alpha="0.5"
-                android:text="Will be provided"
                 android:fontFamily="@font/sf_pro_regular"
                 />
 

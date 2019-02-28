@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.app.kiranpuppala.event.network.ApiClient;
+import com.app.kiranpuppala.event.network.AuthUtils;
 import com.app.kiranpuppala.event.network.ResponseCallback;
 import com.app.kiranpuppala.event.utils.Session;
 import com.google.gson.Gson;
@@ -52,7 +53,6 @@ public class ApiAuthenticator extends AbstractAccountAuthenticator {
 
         Log.e(LOG_TAG,"KEY_ACCOUNT_TYPE " + accountType);
 
-
         intent.putExtra(GetInActivity.KEY_AUTH_TYPE, authTokenType);
         intent.putExtra(GetInActivity.KEY_IS_ADDING_NEW_ACCOUNT, true);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
@@ -74,11 +74,10 @@ public class ApiAuthenticator extends AbstractAccountAuthenticator {
 
         Log.e(LOG_TAG,"GET_AUTH_TOKEN ");
 
-
         authToken = am.peekAuthToken(account, authTokenType);
 
         // Lets give another try to authenticate the user
-        if (TextUtils.isEmpty(authToken)) {
+        if (TextUtils.isEmpty(authToken)||!AuthUtils.isTokenValid(mContext,authToken)) {
             final String password = am.getPassword(account);
             if (password != null) {
                 authToken = getAuthToken(account,password);
