@@ -58,6 +58,8 @@ public class ApiClient {
     public static String EDIT_PROFILE_PATH = "/api/edit-profile";
     public static String GET_PROFILE_PATH = "/api/get-profile";
     public static String CREATE_EVENT_PATH = "/api/create-event";
+    public static String JOIN_EVENT_PATH = "/api/join-event";
+    public static String UPDATE_EVENT_PATH = "/api/update-event";
     public static String LIST_EVENTS_PATH = "/api/list-events";
     private static  String S3_URL = "https://s3.ap-south-1.amazonaws.com/homework-event/";
 

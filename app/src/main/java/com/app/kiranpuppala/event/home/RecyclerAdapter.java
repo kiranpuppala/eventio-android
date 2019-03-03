@@ -1,6 +1,5 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.home;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -11,11 +10,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.app.kiranpuppala.event.EventDescriptionActivity;
+import com.app.kiranpuppala.event.R;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -31,11 +31,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     ArrayList<JSONObject> adapterValues;
     int times = 0;
     private Context context;
+    String authToken;
 
 
-    public RecyclerAdapter(Context context, ArrayList<JSONObject> adapterValues) {
+    public RecyclerAdapter(Context context, ArrayList<JSONObject> adapterValues, String authToken) {
         this.context = context;
         this.adapterValues = adapterValues;
+        this.authToken = authToken;
     }
 
 
@@ -64,7 +66,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, final int position) {
         try {
             JSONObject jsonObject = adapterValues.get(position);
-            Glide.with(context).load(jsonObject.getString("graphic")).apply(new RequestOptions().placeholder(R.mipmap.ic_launcher).fitCenter()).into(holder.event_image);
+            Glide.with(context).load(jsonObject.getString("graphic")).into(holder.event_image);
             holder.event_name.setText(jsonObject.getString("name"));
             holder.event_category.setText(jsonObject.getString("category"));
             holder.event_date.setText(jsonObject.getString("from_date"));
@@ -135,6 +137,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                         Intent intent = new Intent(context, EventDescriptionActivity.class);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra("inputPayload",adapterValues.get(getAdapterPosition()).toString());
+                        intent.putExtra("authToken",authToken);
                         context.startActivity(intent);
                     } catch (Exception e) {
                         e.printStackTrace();

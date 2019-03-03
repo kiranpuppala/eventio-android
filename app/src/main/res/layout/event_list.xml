@@ -19,6 +19,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/sf_pro_bold"
             android:text="Events"
+            android:id="@+id/pageTitle"
             android:textColor="@android:color/black"
             android:textSize="24dp" />
 

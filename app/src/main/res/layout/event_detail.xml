@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="com.app.kiranpuppala.event.MainActivity">
+        tools:context="com.app.kiranpuppala.event.home.MainActivity">
 
 
         <LinearLayout
@@ -42,6 +42,8 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="15dp"
                 android:id="@+id/image"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
                 android:src="@drawable/event_show_background"
                 />
 
@@ -124,6 +126,7 @@
                 android:background="@drawable/rounded_button"
                 android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
+                android:onClick="onJoinClick"
                 android:layout_height="48dp"
                 android:gravity="center"
                 android:orientation="horizontal" >
@@ -131,7 +134,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="UPDATE EVENT"
+                    android:text="JOIN EVENT"
                     android:fontFamily="@font/sf_pro_medium"
                     android:textSize="16dp"
                     android:textColor="#fff"

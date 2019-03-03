@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.menu;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -6,11 +6,18 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
+
+import com.app.kiranpuppala.event.auth.LogoutActivity;
+import com.app.kiranpuppala.event.management.EventManagementActivity;
+import com.app.kiranpuppala.event.R;
+import com.app.kiranpuppala.event.createevent.CreateEventActivity;
+import com.app.kiranpuppala.event.home.MainActivity;
+import com.app.kiranpuppala.event.profile.UserAccountActivity;
+import com.app.kiranpuppala.event.utils.Constants;
 
 /**
  * Created by kiran.puppala on 4/6/18.
@@ -22,6 +29,7 @@ public class Menu_Activity extends AppCompatActivity {
     public static final String EXTRA_CIRCULAR_REVEAL_Y = "EXTRA_CIRCULAR_REVEAL_Y";
 
     View rootLayout;
+    private String authToken = "";
 
     private int revealX;
     private int revealY;
@@ -65,6 +73,10 @@ public class Menu_Activity extends AppCompatActivity {
                 unRevealActivity();
             }
         });
+
+        if(intent!=null&&intent.hasExtra(Constants.KEY_AUTH_TOKEN)){
+            authToken=intent.getStringExtra(Constants.KEY_AUTH_TOKEN);
+        }
     }
 
     protected void revealActivity(int x, int y) {
@@ -108,6 +120,7 @@ public class Menu_Activity extends AppCompatActivity {
 
     public void handleIntent (Class<?> cls){
         Intent i = new Intent(Menu_Activity.this,cls);
+        i.putExtra(Constants.KEY_AUTH_TOKEN,authToken);
         startActivity(i);
     }
 
@@ -123,8 +136,11 @@ public class Menu_Activity extends AppCompatActivity {
         handleIntent(EventManagementActivity.class);
     }
 
-
     public void accountClick (View view){
         handleIntent(UserAccountActivity.class);
+    }
+
+    public void logoutClick(View view) {
+        handleIntent(LogoutActivity.class);
     }
 }

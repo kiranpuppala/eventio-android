@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.onboard;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,9 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.app.kiranpuppala.event.R;
+import com.app.kiranpuppala.event.home.MainActivity;
 
 import java.util.HashMap;
 
@@ -54,7 +57,7 @@ public class OnBoardingActivity extends FragmentActivity {
                     mPager.setCurrentItem(mPager.getCurrentItem()+1);
                     changeCurrentDot(mPager.getCurrentItem());
                 }else{
-                    Intent intent = new Intent(OnBoardingActivity.this,MainActivity.class);
+                    Intent intent = new Intent(OnBoardingActivity.this, MainActivity.class);
                     startActivity(intent);
                 }
 

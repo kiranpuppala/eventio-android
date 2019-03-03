@@ -140,6 +140,31 @@
                 />
         </LinearLayout>
 
+        <LinearLayout
+            android:onClick="logoutClick"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            android:layout_marginBottom="20dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_account_circle_black_24dp"
+                />
+            <TextView
+                android:textColor="@android:color/black"
+                android:textSize="16dp"
+                android:fontFamily="@font/sf_pro_medium"
+                android:layout_marginLeft="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LOGOUT"
+                />
+        </LinearLayout>
+
 
 
     </LinearLayout>

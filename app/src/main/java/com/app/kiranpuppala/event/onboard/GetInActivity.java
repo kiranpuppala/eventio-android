@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.onboard;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
@@ -6,33 +6,26 @@ import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.app.kiranpuppala.event.R;
+import com.app.kiranpuppala.event.home.MainActivity;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.ResponseCallback;
 import com.app.kiranpuppala.event.utils.Session;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 
 public class GetInActivity extends AccountAuthenticatorActivity {
 
     private static final String LOG_TAG= "GET_IN_ACTIVITY";
-    TextInputLayout email,firstname,lastname,password,confirmpassword;
+    TextInputLayout email,username,password,confirmpassword;
     TextView action_button;
     TextView footer_text,footer_text_ext;
     String mode = "LOGIN";
@@ -52,9 +45,8 @@ public class GetInActivity extends AccountAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.getin_layout);
         email=findViewById(R.id.email);
-        firstname=findViewById(R.id.firstname);
-        lastname=findViewById(R.id.lastname);
         password=findViewById(R.id.password);
+        username=findViewById(R.id.username);
         confirmpassword=findViewById(R.id.confirmpassword);
         action_button=findViewById(R.id.action_button);
         footer_text=findViewById(R.id.footer_text);
@@ -63,9 +55,9 @@ public class GetInActivity extends AccountAuthenticatorActivity {
         action_button.setOnClickListener(onClickListener);
         footer_text_ext.setOnClickListener(onClickListener);
 
-        String ref_id = Session.get(getBaseContext(),"ref_id");
-        if(ref_id!=null){
-            Intent intent = new Intent(GetInActivity.this,MainActivity.class);
+        String user_id = Session.get(getApplicationContext(),"user_id");
+        if(user_id!=null){
+            Intent intent = new Intent(GetInActivity.this, MainActivity.class);
             startActivity(intent);
         }else
         renderAccordingToMode();
@@ -86,8 +78,7 @@ public class GetInActivity extends AccountAuthenticatorActivity {
             text="Already a member?";
             text_ext="Login";
         }
-        firstname.setVisibility(visibility);
-        lastname.setVisibility(visibility);
+        username.setVisibility(visibility);
         confirmpassword.setVisibility(visibility);
         footer_text.setText(text);
         footer_text_ext.setText(text_ext);
@@ -114,8 +105,7 @@ public class GetInActivity extends AccountAuthenticatorActivity {
             request.put("email",email.getEditText().getText().toString());
             request.put("password",password.getEditText().getText().toString());
             if(mode.equals("SIGNUP")){
-                request.put("first_name",firstname.getEditText().getText().toString());
-                request.put("last_name",lastname.getEditText().getText().toString());
+                request.put("user_name",username.getEditText().getText().toString());
             }
 
             ApiClient.makeRequest(GetInActivity.this, request,null,Request.Method.POST,path,new ResponseCallback(){
@@ -133,7 +123,8 @@ public class GetInActivity extends AccountAuthenticatorActivity {
                             intent.putExtra(AccountManager.KEY_AUTHTOKEN, res.getString("token"));
                             intent.putExtra(AccountManager.KEY_PASSWORD, password.getEditText().getText().toString());
 
-                            Session.set(getBaseContext(),"ref_id",email.getEditText().getText().toString());
+                            Session.set(getApplicationContext(),"user_id",res.optString("id",""));
+                            Session.set(getApplicationContext(),"user_email", email.getEditText().getText().toString());
                             finishLogin(intent);
 
 //                            Intent intent = new Intent(GetInActivity.this,MainActivity.class);

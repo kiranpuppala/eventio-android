@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.auth;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -10,25 +10,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.android.volley.Request;
+import com.app.kiranpuppala.event.onboard.GetInActivity;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.AuthUtils;
-import com.app.kiranpuppala.event.network.ResponseCallback;
-import com.app.kiranpuppala.event.utils.Session;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
-
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 public class ApiAuthenticator extends AbstractAccountAuthenticator {
     public Context mContext;

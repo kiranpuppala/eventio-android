@@ -82,8 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include  layout="@layout/editable_text_layout" android:id="@+id/firstname"/>
-            <include  layout="@layout/editable_text_layout" android:id="@+id/lastname"/>
+            <include  layout="@layout/editable_text_layout" android:id="@+id/username"/>
             <include  layout="@layout/editable_text_layout" android:id="@+id/regno"/>
             <include  layout="@layout/editable_text_layout" android:id="@+id/degree"/>
             <include  layout="@layout/editable_text_layout" android:id="@+id/branch"/>

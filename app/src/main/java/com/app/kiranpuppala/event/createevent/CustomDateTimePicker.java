@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.createevent;
 
 import android.app.Activity;
 import android.app.Dialog;

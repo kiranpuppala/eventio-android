@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.createevent;
 
 import android.Manifest;
 import android.accounts.Account;
@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,24 +43,28 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.app.kiranpuppala.event.R;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.ResponseCallback;
+import com.app.kiranpuppala.event.onboard.GetInActivity;
+import com.app.kiranpuppala.event.utils.Constants;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.List;
 
 /**
  * Created by kiran.puppala on 4/6/18.
@@ -81,10 +84,161 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
     private EditText eventName, description, venue, mobile, email, tagInput, coordinatorInput;
     private int SELECT_PICTURE = 111;
     private LocationManager locationManager;
-    private String fromTimeString, toTimeString, date;
-    private String eventCategory = "";
+    private String eventImageUrl = "";
+    private String coordinators = "[]";
     private JSONObject eventObject = new JSONObject();
     private File eventImageFile;
+    private String editMode = Constants.MODE_EVENT_CREATE;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.create_event);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if(getIntent()!=null&&getIntent().getStringExtra("action")!=null){
+            if(getIntent().getStringExtra("action").equals(Constants.MODE_EVENT_UPDATE)&&getIntent().getBundleExtra("inputPayload")!=null){
+                editMode=Constants.MODE_EVENT_UPDATE;
+                initializeLayout(getIntent().getBundleExtra("inputPayload"));
+            }
+        }else{
+            initializeLayout(null);
+        }
+
+    }
+
+
+    private void initializeLayout(Bundle bundle){
+
+        LinearLayoutManager llms = new LinearLayoutManager(this);
+        llms.setOrientation(LinearLayoutManager.HORIZONTAL);
+
+        category_spinner = findViewById(R.id.event_category);
+
+        final Typeface mtypeface = Typeface.createFromAsset(getBaseContext().getAssets(),
+                "fonts/sf_pro_medium.otf");
+
+        ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<CharSequence>(getApplicationContext(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.event_category)) {
+
+            @Override
+            public boolean isEnabled(int position) {
+                if (position == 0) return false;
+                else return true;
+            }
+
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                if (position == 0) ((TextView) v).setTextColor(Color.GRAY);
+                else ((TextView) v).setTextColor(Color.BLACK);
+                ((TextView) v).setTypeface(mtypeface);
+                return v;
+            }
+
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View v = super.getDropDownView(position, convertView, parent);
+                if (position == 0) ((TextView) v).setTextColor(Color.GRAY);
+                else ((TextView) v).setTextColor(Color.BLACK);
+                ((TextView) v).setTypeface(mtypeface);
+                return v;
+            }
+        };
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        category_spinner.setAdapter(spinnerAdapter);
+
+        category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        values = new ArrayList<>();
+        coordinatorsList = new ArrayList<>();
+        coordinatorAdapter = new CoordinatorListAdapter(getBaseContext(), coordinatorsList);
+
+
+        coordinatorListView = findViewById(R.id.coordinatorListView);
+        coordinatorListView.setLayoutManager(llms);
+        coordinatorListView.setAdapter(coordinatorAdapter);
+
+        eventName = findViewById(R.id.eventName);
+        description = findViewById(R.id.description);
+        venue = findViewById(R.id.venue);
+        mobile = findViewById(R.id.mobile);
+        email = findViewById(R.id.email);
+
+        coordinatorInput = findViewById(R.id.coordinatorInput);
+
+        addCoordinator = findViewById(R.id.addCoordinator);
+        addCoordinator.setOnClickListener(listener);
+
+        galleryPick = findViewById(R.id.galleryPick);
+        galleryPick.setOnClickListener(listener);
+
+        fromTime = findViewById(R.id.fromTime);
+        fromTime.setOnClickListener(listener);
+
+        toTime = findViewById(R.id.toTime);
+        toTime.setOnClickListener(listener);
+
+        galleryPick = findViewById(R.id.galleryPick);
+        galleryPick.setOnClickListener(listener);
+
+        createEvent = findViewById(R.id.createEvent);
+        createEvent.setOnClickListener(submitListener);
+
+        toDate = findViewById(R.id.toDate);
+        toDate.setOnClickListener(listener);
+        fromDate = findViewById(R.id.fromDate);
+        fromDate.setOnClickListener(listener);
+        fromTime = findViewById(R.id.fromTime);
+        toTime = findViewById(R.id.toTime);
+        venuePick = findViewById(R.id.venuePick);
+        venuePick.setOnClickListener(listener);
+        eventImage = findViewById(R.id.eventImage);
+        toDateText = findViewById(R.id.toDateText);
+        fromDateText = findViewById(R.id.fromDateText);
+        fromTimeText = findViewById(R.id.fromTimeText);
+        toTimeText = findViewById(R.id.toTimeText);
+
+        pd = new ProgressDialog(this);
+        pd.setMessage("Fetching current location");
+
+
+        if(bundle!=null){
+            eventImageUrl=bundle.getString("graphic");
+            Glide.with(getBaseContext()).load(eventImageUrl).apply(new RequestOptions().placeholder(R.mipmap.ic_launcher).fitCenter()).into(eventImage);
+            eventName.setText(bundle.getString("name"));
+            description.setText(bundle.getString("description"));
+            category_spinner.setSelection(spinnerAdapter.getPosition(bundle.getString("category")));
+            toDateText.setText(bundle.getString("to_date"));
+            fromDateText.setText(bundle.getString("from_date"));
+            toTimeText.setText(bundle.getString("to_time"));
+            fromTimeText.setText(bundle.getString("from_time"));
+            venue.setText(bundle.getString("venue"));
+            mobile.setText(bundle.getString("mobile"));
+            email.setText(bundle.getString("email"));
+
+            coordinators = bundle.getString("coordinators");
+
+            List <String> list = Arrays.asList(coordinators.substring(1, coordinators.length() - 1).split(", "));
+            coordinatorAdapter.refreshEvents(new ArrayList<String>(list));
+
+        }
+
+    }
 
     View.OnClickListener submitListener = new View.OnClickListener() {
         @Override
@@ -95,17 +249,16 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     public void onResponse(final int response, String url) {
                         try {
                             if (response == ApiClient.RESPONSE_CODE.SUCCESS) {
-                                eventObject.put("graphic", url);
-                            } else {
-                                eventObject.put("graphic", "");
+                                eventImageUrl = url;
                             }
+                            eventObject.put("graphic", eventImageUrl);
                             eventObject.put("name", eventName.getText().toString());
                             eventObject.put("description", description.getText().toString());
-                            eventObject.put("category", eventCategory);
+                            eventObject.put("category", (String)category_spinner.getSelectedItem());
                             eventObject.put("to_date", toDateText.getText().toString());
                             eventObject.put("from_date", fromDateText.getText().toString());
-                            eventObject.put("to_time", toTimeString);
-                            eventObject.put("from_time", fromTimeString);
+                            eventObject.put("to_time", toTimeText.getText().toString());
+                            eventObject.put("from_time", fromTimeText.getText().toString());
                             eventObject.put("venue", venue.getText().toString());
                             eventObject.put("coordinators", coordinatorsList.toString());
                             eventObject.put("mobile", mobile.getText().toString());
@@ -123,7 +276,14 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                                             final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
                                             Map<String, String> headers = new HashMap<>();
                                             headers.put("authorization", authtoken);
-                                            ApiClient.makeRequest(CreateEventActivity.this, eventObject, headers, Request.Method.POST, ApiClient.CREATE_EVENT_PATH, new ResponseCallback() {
+                                            String path = ApiClient.CREATE_EVENT_PATH;
+
+                                            if(editMode.equals(Constants.MODE_EVENT_UPDATE)){
+                                                eventObject.put("id",getIntent().getBundleExtra("inputPayload").getString("id"));
+                                                path=ApiClient.UPDATE_EVENT_PATH;
+                                            }
+
+                                            ApiClient.makeRequest(CreateEventActivity.this, eventObject, headers, Request.Method.POST, path, new ResponseCallback() {
                                                 @Override
                                                 public void onResponse(JSONObject jsonObject) {
                                                     try {
@@ -192,120 +352,6 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
     };
     private Spinner category_spinner;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.create_event);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.HORIZONTAL);
-
-        LinearLayoutManager llms = new LinearLayoutManager(this);
-        llms.setOrientation(LinearLayoutManager.HORIZONTAL);
-
-        category_spinner = findViewById(R.id.event_category);
-
-        final Typeface mtypeface = Typeface.createFromAsset(getBaseContext().getAssets(),
-                "fonts/sf_pro_medium.otf");
-
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getApplicationContext(), android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.event_category)) {
-
-            @Override
-            public boolean isEnabled(int position) {
-                if (position == 0) return false;
-                else return true;
-            }
-
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View v = super.getView(position, convertView, parent);
-                if (position == 0) ((TextView) v).setTextColor(Color.GRAY);
-                else ((TextView) v).setTextColor(Color.BLACK);
-                ((TextView) v).setTypeface(mtypeface);
-                return v;
-            }
-
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View v = super.getDropDownView(position, convertView, parent);
-                if (position == 0) ((TextView) v).setTextColor(Color.GRAY);
-                else ((TextView) v).setTextColor(Color.BLACK);
-                ((TextView) v).setTypeface(mtypeface);
-                return v;
-            }
-        };
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        category_spinner.setAdapter(adapter);
-
-        category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                eventCategory = (String) parent.getItemAtPosition(position);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        values = new ArrayList<>();
-        coordinatorsList = new ArrayList<>();
-        coordinatorAdapter = new CoordinatorListAdapter(getBaseContext(), coordinatorsList);
-
-
-        coordinatorListView = findViewById(R.id.coordinatorListView);
-        coordinatorListView.setLayoutManager(llms);
-        coordinatorListView.setAdapter(coordinatorAdapter);
-
-        eventName = findViewById(R.id.eventName);
-        description = findViewById(R.id.description);
-        venue = findViewById(R.id.venue);
-        mobile = findViewById(R.id.mobile);
-        email = findViewById(R.id.email);
-
-        coordinatorInput = findViewById(R.id.coordinatorInput);
-
-        addCoordinator = findViewById(R.id.addCoordinator);
-        addCoordinator.setOnClickListener(listener);
-
-        galleryPick = findViewById(R.id.galleryPick);
-        galleryPick.setOnClickListener(listener);
-
-        fromTime = findViewById(R.id.fromTime);
-        fromTime.setOnClickListener(listener);
-
-        toTime = findViewById(R.id.toTime);
-        toTime.setOnClickListener(listener);
-
-        galleryPick = findViewById(R.id.galleryPick);
-        galleryPick.setOnClickListener(listener);
-
-        createEvent = findViewById(R.id.createEvent);
-        createEvent.setOnClickListener(submitListener);
-
-        toDate = findViewById(R.id.toDate);
-        toDate.setOnClickListener(listener);
-        fromDate = findViewById(R.id.fromDate);
-        fromDate.setOnClickListener(listener);
-        fromTime = findViewById(R.id.fromTime);
-        toTime = findViewById(R.id.toTime);
-        venuePick = findViewById(R.id.venuePick);
-        venuePick.setOnClickListener(listener);
-        eventImage = findViewById(R.id.eventImage);
-        toDateText = findViewById(R.id.toDateText);
-        fromDateText = findViewById(R.id.fromDateText);
-        fromTimeText = findViewById(R.id.fromTimeText);
-        toTimeText = findViewById(R.id.toTimeText);
-
-        pd = new ProgressDialog(this);
-        pd.setMessage("Fetching current location");
-    }
 
     private boolean isEmpty(String str) {
         return (str == null || str.isEmpty());
@@ -317,14 +363,12 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                 if (!isEmpty(venue.getText().toString())) {
                     if (!isEmpty(mobile.getText().toString())) {
                         if (!isEmpty(email.getText().toString())) {
-                            if (!isEmpty(eventCategory)) {
-                                if (!isEmpty(toTimeString)) {
-                                    if (!isEmpty(fromTimeString)) {
+                            if (!isEmpty((String)category_spinner.getSelectedItem())) {
+                                if (!isEmpty(toTimeText.getText().toString())) {
+                                    if (!isEmpty(fromTimeText.getText().toString())) {
                                         if(!isEmpty(toDateText.getText().toString())){
                                             if(!isEmpty(fromDateText.getText().toString())){
-                                                if(eventImageFile!=null){
-                                                    return true;
-                                                }
+                                               return true;
                                             }
                                         }
                                     }
@@ -350,10 +394,8 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     public void onTimeSet(TimePicker view, int hourOfDay,
                                           int minute) {
                         if (type.equals("fromTime")) {
-                            fromTimeString = (changeTimeFormat(hourOfDay + ":" + mMinute));
                             fromTimeText.setText(changeTimeFormat(hourOfDay + ":" + minute));
                         } else if (type.equals("toTime")) {
-                            toTimeString = (changeTimeFormat(hourOfDay + ":" + mMinute));
                             toTimeText.setText(changeTimeFormat(hourOfDay + ":" + minute));
                         }
                     }
@@ -407,7 +449,6 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-                        date = dayOfMonth + "-" + monthOfYear + "-" + year;
                         if (mode.equals("toDate"))
                             toDateText.setText(dayOfMonth + "-" + monthOfYear + "-" + year);
                         else

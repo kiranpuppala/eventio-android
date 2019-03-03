@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.onboard;
 
 /**
  * Created by kiran.puppala on 4/4/18.
@@ -10,13 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class OnBoardFragmentTwo extends Fragment {
+import com.app.kiranpuppala.event.R;
+
+public class OnBoardFragmentThree extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.onboard_two, container, false);
+                R.layout.onboard_three, container, false);
 
         return rootView;
     }

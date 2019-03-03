@@ -1,10 +1,9 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.home;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -12,29 +11,25 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.android.volley.Request;
+import com.app.kiranpuppala.event.R;
+import com.app.kiranpuppala.event.menu.Menu_Activity;
 import com.app.kiranpuppala.event.network.ApiClient;
-import com.app.kiranpuppala.event.network.AuthUtils;
 import com.app.kiranpuppala.event.network.ResponseCallback;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.app.kiranpuppala.event.onboard.GetInActivity;
+import com.app.kiranpuppala.event.utils.Constants;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 import static com.app.kiranpuppala.event.network.AuthUtils.isTokenValid;
 
@@ -50,21 +45,21 @@ public class MainActivity extends AppCompatActivity {
         authenticate();
     }
 
-    private void renderContent(JSONArray jsonArray) {
+    private void renderContent(JSONArray jsonArray, final String authToken) {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         ArrayList<JSONObject> values = new ArrayList<JSONObject>();
 
-        try{
+        try {
             if (jsonArray != null) {
-                for (int i=0;i<jsonArray.length();i++){
+                for (int i = 0; i < jsonArray.length(); i++) {
                     values.add(jsonArray.getJSONObject(i));
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        RecyclerAdapter adapter = new RecyclerAdapter(getBaseContext(), values);
+        RecyclerAdapter adapter = new RecyclerAdapter(getBaseContext(), values, authToken);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
@@ -81,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, Menu_Activity.class);
                 intent.putExtra(Menu_Activity.EXTRA_CIRCULAR_REVEAL_X, revealX);
                 intent.putExtra(Menu_Activity.EXTRA_CIRCULAR_REVEAL_Y, revealY);
+                intent.putExtra(Constants.KEY_AUTH_TOKEN, authToken);
 
                 ActivityCompat.startActivity(MainActivity.this, intent, options.toBundle());
 
@@ -101,24 +97,23 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Bundle bnd = future.getResult();
                         final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                        if(isTokenValid(getBaseContext(),authtoken)){
-                            Map<String,String> headers = new HashMap<>();
-                            headers.put("authorization",authtoken);
+                        if (isTokenValid(getBaseContext(), authtoken)) {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("authorization", authtoken);
 
-                            ApiClient.makeRequest(MainActivity.this, null, headers, Request.Method.GET, ApiClient.LIST_EVENTS_PATH, new ResponseCallback() {
+                            ApiClient.makeRequest(MainActivity.this, null, headers, Request.Method.POST, ApiClient.LIST_EVENTS_PATH, new ResponseCallback() {
                                 @Override
                                 public void onResponse(JSONObject jsonObject) {
-                                    try{
+                                    try {
                                         JSONArray eventsObj = jsonObject.getJSONArray("response");
-                                        renderContent(eventsObj);
-                                    }catch (Exception e){
+                                        renderContent(eventsObj, authtoken);
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-
                                 }
                             });
-                        }else{
-                            am.invalidateAuthToken(GetInActivity.ARG_ACCOUNT_TYPE,authtoken);
+                        } else {
+                            am.invalidateAuthToken(GetInActivity.ARG_ACCOUNT_TYPE, authtoken);
                             authenticate();
                         }
                     } catch (Exception e) {

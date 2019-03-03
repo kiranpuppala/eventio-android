@@ -1,4 +1,4 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.createevent;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.app.kiranpuppala.event.R;
 
 import java.util.ArrayList;
 
@@ -55,6 +57,12 @@ public class CoordinatorListAdapter extends RecyclerView.Adapter<CoordinatorList
                 notifyDataSetChanged();
             }
         });
+    }
+
+    public void refreshEvents( ArrayList <String> values) {
+        this.adapterValues.clear();
+        this.adapterValues.addAll(values);
+        notifyDataSetChanged();
     }
 
 

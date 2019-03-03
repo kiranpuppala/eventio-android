@@ -1,5 +1,8 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.profile;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +26,11 @@ import android.widget.Toast;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.android.volley.Request;
+import com.app.kiranpuppala.event.R;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.ResponseCallback;
+import com.app.kiranpuppala.event.onboard.GetInActivity;
+import com.app.kiranpuppala.event.utils.Constants;
 import com.app.kiranpuppala.event.utils.Session;
 import com.bumptech.glide.Glide;
 
@@ -33,18 +39,22 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 
-import static android.app.Activity.RESULT_OK;
+import static com.app.kiranpuppala.event.network.AuthUtils.isTokenValid;
 
 public class UserAccountActivity extends AppCompatActivity {
 
-    View firstname,lastname , email,password, regdno, degree, branch, mobile, updateProfile, galleryPick;
-    ImageView eventImage;
-    int PICK_IMAGE_REQUEST = 101;
-    JSONObject profileObject = new JSONObject();
-    AmazonS3Client s3;
-    View.OnClickListener onClickListener = new View.OnClickListener() {
+    private View username , email,password, regdno, degree, branch, mobile, updateProfile, galleryPick;
+    private ImageView eventImage;
+    private String profilePictureUrl="";
+    private static final int PICK_IMAGE_REQUEST = 101;
+    private JSONObject profileObject = new JSONObject();
+    private String authToken = "";
+    private AmazonS3Client s3;
+    private File profilePictureFile;
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -69,15 +79,14 @@ public class UserAccountActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.userAccount);
+        LinearLayout linearLayout = findViewById(R.id.userAccount);
         LayoutTransition layoutTransition = new LayoutTransition();
         layoutTransition.enableTransitionType(LayoutTransition.APPEARING);
         linearLayout.setLayoutTransition(layoutTransition);
         linearLayout.getLayoutTransition().enableTransitionType(LayoutTransition.APPEARING);
 
 
-        firstname = findViewById(R.id.firstname);
-        lastname = findViewById(R.id.lastname);
+        username = findViewById(R.id.username);
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         regdno = findViewById(R.id.regno);
@@ -93,11 +102,8 @@ public class UserAccountActivity extends AppCompatActivity {
         ((EditText)(password.findViewById(R.id.descEdit))).setTransformationMethod(new PasswordTransformationMethod());
 
 
-        TextView first_name_text = (firstname.findViewById(R.id.title));
-        first_name_text.setText("First Name");
-
-        TextView last_name_text = (lastname.findViewById(R.id.title));
-        last_name_text.setText("Last Name");
+        TextView second_name_text = (username.findViewById(R.id.title));
+        second_name_text.setText("User Name");
 
         TextView regd_txt = regdno.findViewById(R.id.title);
         regd_txt.setText("Registration no");
@@ -118,17 +124,10 @@ public class UserAccountActivity extends AppCompatActivity {
         password_text.setText("Password");
 
 
-        (firstname.findViewById(R.id.editContent)).setOnClickListener(new View.OnClickListener() {
+        (username.findViewById(R.id.editContent)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                makeEditable(firstname);
-            }
-        });
-
-        (lastname.findViewById(R.id.editContent)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                makeEditable(lastname);
+                makeEditable(username);
             }
         });
 
@@ -174,28 +173,36 @@ public class UserAccountActivity extends AppCompatActivity {
             }
         });
 
-        setProfile();
+        if(getIntent()!=null&&getIntent().hasExtra(Constants.KEY_AUTH_TOKEN)){
+            authToken = getIntent().getStringExtra(Constants.KEY_AUTH_TOKEN);
+            setProfile();
+        }
+
     }
 
+
     private void setProfile(){
-        String ref_id = Session.get(getBaseContext(),"ref_id");
-        ApiClient.makeRequest(UserAccountActivity.this, null,null, Request.Method.GET, ApiClient.GET_PROFILE_PATH + "?ref_id=" + ref_id, new ResponseCallback() {
+        String user_id = Session.get(getApplicationContext(),"user_id");
+        Map<String,String> headers = new HashMap<>();
+        headers.put("authorization",authToken);
+
+        ApiClient.makeRequest(UserAccountActivity.this, null,headers, Request.Method.GET, ApiClient.GET_PROFILE_PATH + "?user_id=" + user_id, new ResponseCallback() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try{
+                    Log.e("RESPONSEEEEEEE",jsonObject.toString());
                     if(jsonObject.getInt("code") == 200){
                         JSONObject response = (JSONObject)jsonObject.get("response");
                         Glide.with(getBaseContext()).load(response.get("profile_picture")).into(eventImage);
-                        ((TextView)(firstname.findViewById(R.id.descDisplay))).setText(response.getString("first_name"));
-                        ((TextView)(lastname.findViewById(R.id.descDisplay))).setText(response.getString("last_name"));
+                        ((TextView)(username.findViewById(R.id.descDisplay))).setText(response.getString("user_name"));
                         ((TextView)(regdno.findViewById(R.id.descDisplay))).setText(response.getString("reg_no"));
                         ((TextView)(degree.findViewById(R.id.descDisplay))).setText(response.getString("degree"));
                         ((TextView)(branch.findViewById(R.id.descDisplay))).setText(response.getString("branch"));
                         ((TextView)(mobile.findViewById(R.id.descDisplay))).setText(response.getString("mobile"));
                         ((TextView)(email.findViewById(R.id.descDisplay))).setText(response.getString("email"));
+                        ((TextView)(password.findViewById(R.id.descDisplay))).setText("Edit Password");
 
-                        ((EditText)(firstname.findViewById(R.id.descEdit))).setText(response.getString("first_name"));
-                        ((EditText)(lastname.findViewById(R.id.descEdit))).setText(response.getString("last_name"));
+                        ((EditText)(username.findViewById(R.id.descEdit))).setText(response.getString("user_name"));
                         ((EditText)(regdno.findViewById(R.id.descEdit))).setText(response.getString("reg_no"));
                         ((EditText)(degree.findViewById(R.id.descEdit))).setText(response.getString("degree"));
                         ((EditText)(branch.findViewById(R.id.descEdit))).setText(response.getString("branch"));
@@ -204,6 +211,8 @@ public class UserAccountActivity extends AppCompatActivity {
 
 
                         profileObject = response;
+                        Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+
                     }
                 }catch (JSONException e){
                     e.printStackTrace();
@@ -211,7 +220,6 @@ public class UserAccountActivity extends AppCompatActivity {
 
                 }
 
-                Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -219,6 +227,7 @@ public class UserAccountActivity extends AppCompatActivity {
     private void makeEditable(View v) {
         TextView textView = (v.findViewById(R.id.descDisplay));
         EditText editText = (v.findViewById(R.id.descEdit));
+        if(v.getId()!=R.id.password)
         editText.setText(textView.getText());
         textView.setVisibility(View.GONE);
         editText.setVisibility(View.VISIBLE);
@@ -251,9 +260,8 @@ public class UserAccountActivity extends AppCompatActivity {
 
     private void updateProfile() {
         try {
-            profileObject.put("ref_id", Session.get(getBaseContext(), "ref_id"));
-            profileObject.put("first_name", ((EditText) (firstname.findViewById(R.id.descEdit))).getText());
-            profileObject.put("last_name", ((EditText) (lastname.findViewById(R.id.descEdit))).getText());
+            profileObject.put("user_id", Session.get(getApplicationContext(), "user_id"));
+            profileObject.put("user_name", ((EditText) (username.findViewById(R.id.descEdit))).getText());
             profileObject.put("reg_no", ((EditText) (regdno.findViewById(R.id.descEdit))).getText());
             profileObject.put("degree", ((EditText) (degree.findViewById(R.id.descEdit))).getText());
             profileObject.put("branch", ((EditText) (branch.findViewById(R.id.descEdit))).getText());
@@ -263,37 +271,38 @@ public class UserAccountActivity extends AppCompatActivity {
         }catch(Exception e){
             e.printStackTrace();
         }
-        File file = null;
         try{
-            file = (File) profileObject.get("file");
-            profileObject.remove("file");
-            if(file!=null){
-                ApiClient.uploadtos3(getApplicationContext(), file, new ResponseCallback() {
+              ApiClient.uploadtos3(getApplicationContext(), profilePictureFile, new ResponseCallback() {
                     @Override
                     public void onResponse(int response, String url) {
-                        if (response == ApiClient.RESPONSE_CODE.SUCCESS) {
-                            try {
-                                profileObject.put("profile_picture", url);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        try{
+                            if (response == ApiClient.RESPONSE_CODE.SUCCESS) {
+                                profilePictureUrl = url;
                             }
+
+                            profileObject.put("profile_picture", url);
+
+                            Map<String,String> headers = new HashMap<>();
+                            headers.put("authorization",authToken);
+
+                            ApiClient.makeRequest(UserAccountActivity.this, profileObject,headers, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
+                                @Override
+                                public void onResponse(JSONObject jsonObject) {
+                                    if(jsonObject.optInt("code",0)==200){
+                                        Toast.makeText(UserAccountActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(UserAccountActivity.this, "Updation Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
-                        ApiClient.makeRequest(UserAccountActivity.this, profileObject,null, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
-                            @Override
-                            public void onResponse(JSONObject jsonObject) {
-                                Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
-                            }
-                        });
                     }
                 });
-            }
-        }catch (Exception e){
-            ApiClient.makeRequest(UserAccountActivity.this, profileObject,null, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
-                    Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
-                }
-            });
+            } catch (Exception e){
+                e.printStackTrace();
         }
 
     }
@@ -318,15 +327,12 @@ public class UserAccountActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri filePath = data.getData();
             Uri selectedImageURI = data.getData();
-            File imageFile = new File(getRealPathFromURI(selectedImageURI));
+            profilePictureFile = new File(getRealPathFromURI(selectedImageURI));
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 Bitmap lastBitmap = null;
                 lastBitmap = bitmap;
-//                String image = getStringImage(lastBitmap);
-//                Log.d("image",image);
                 eventImage.setImageBitmap(lastBitmap);
-                profileObject.put("file", imageFile);
             } catch (Exception e) {
                 e.printStackTrace();
             }

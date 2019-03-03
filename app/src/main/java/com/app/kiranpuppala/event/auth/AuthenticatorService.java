@@ -1,10 +1,10 @@
-package com.app.kiranpuppala.event;
+package com.app.kiranpuppala.event.auth;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.app.kiranpuppala.event.ApiAuthenticator;
+import com.app.kiranpuppala.event.auth.ApiAuthenticator;
 
 public class AuthenticatorService extends Service {
     @Override
