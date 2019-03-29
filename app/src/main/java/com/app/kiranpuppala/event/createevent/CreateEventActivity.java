@@ -13,7 +13,9 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -22,12 +24,14 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +41,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -78,6 +83,7 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
     public LinearLayout galleryPick, createEvent;
     public ImageView toDate, fromDate, fromTime, toTime, venuePick, eventImage;
     public TextView toDateText, fromDateText, toTimeText, fromTimeText, addCoordinator;
+    public ProgressBar progress;
     public CoordinatorListAdapter coordinatorAdapter;
     public ArrayList<String> values, coordinatorsList;
     public RecyclerView coordinatorListView;
@@ -89,6 +95,7 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
     private JSONObject eventObject = new JSONObject();
     private File eventImageFile;
     private String editMode = Constants.MODE_EVENT_CREATE;
+    private String authToken="";
 
 
 
@@ -98,23 +105,28 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
         setContentView(R.layout.create_event);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Create Event");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(getIntent()!=null&&getIntent().getStringExtra("action")!=null){
             if(getIntent().getStringExtra("action").equals(Constants.MODE_EVENT_UPDATE)&&getIntent().getBundleExtra("inputPayload")!=null){
                 editMode=Constants.MODE_EVENT_UPDATE;
+                toolbar.setTitle("Edit Event");
+                ((TextView)(findViewById(R.id.buttonText))).setText("UPDATE EVENT");
                 initializeLayout(getIntent().getBundleExtra("inputPayload"));
             }
         }else{
             initializeLayout(null);
         }
 
+
     }
 
 
     private void initializeLayout(Bundle bundle){
+
+        authToken = getIntent().getStringExtra(Constants.KEY_AUTH_TOKEN);
 
         LinearLayoutManager llms = new LinearLayoutManager(this);
         llms.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -166,7 +178,7 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
 
         values = new ArrayList<>();
         coordinatorsList = new ArrayList<>();
-        coordinatorAdapter = new CoordinatorListAdapter(getBaseContext(), coordinatorsList);
+        coordinatorAdapter = new CoordinatorListAdapter(getBaseContext(),authToken,coordinatorsList);
 
 
         coordinatorListView = findViewById(R.id.coordinatorListView);
@@ -183,6 +195,8 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
 
         addCoordinator = findViewById(R.id.addCoordinator);
         addCoordinator.setOnClickListener(listener);
+
+        progress=findViewById(R.id.progress);
 
         galleryPick = findViewById(R.id.galleryPick);
         galleryPick.setOnClickListener(listener);
@@ -218,6 +232,7 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
 
 
         if(bundle!=null){
+
             eventImageUrl=bundle.getString("graphic");
             Glide.with(getBaseContext()).load(eventImageUrl).apply(new RequestOptions().placeholder(R.mipmap.ic_launcher).fitCenter()).into(eventImage);
             eventName.setText(bundle.getString("name"));
@@ -263,6 +278,7 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                             eventObject.put("coordinators", coordinatorsList.toString());
                             eventObject.put("mobile", mobile.getText().toString());
                             eventObject.put("email", email.getText().toString());
+                            eventObject.put("joinees","");
 
                             final AccountManager am = AccountManager.get(CreateEventActivity.this);
                             Account account[] = (am.getAccountsByType(GetInActivity.ARG_ACCOUNT_TYPE));
@@ -289,8 +305,8 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                                                     try {
                                                         int responseCode = jsonObject.getInt("code");
                                                         if (responseCode == 200) {
-                                                            Toast.makeText(getBaseContext(), "SUCCESS", Toast.LENGTH_SHORT).show();
-                                                        }else if (responseCode == 403){
+                                                            Toast.makeText(CreateEventActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+                                                        }else if (responseCode == 401){
                                                             am.invalidateAuthToken(GetInActivity.ARG_ACCOUNT_TYPE,authtoken);
                                                         }
                                                     } catch (Exception e) {
@@ -368,7 +384,9 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
                                     if (!isEmpty(fromTimeText.getText().toString())) {
                                         if(!isEmpty(toDateText.getText().toString())){
                                             if(!isEmpty(fromDateText.getText().toString())){
-                                               return true;
+                                                if(coordinatorsList.size()!=0){
+                                                    return true;
+                                                }
                                             }
                                         }
                                     }
@@ -590,5 +608,95 @@ public class CreateEventActivity extends AppCompatActivity implements LocationLi
 
     @Override
     public void onProviderDisabled(String provider) {
+    }
+
+    public class CoordinatorListAdapter extends RecyclerView.Adapter<CoordinatorListAdapter.ViewHolder> {
+        private ArrayList<String> adapterValues;
+        private int currPos;
+        private Context mContext;
+        private String authtoken;
+
+
+        public CoordinatorListAdapter(Context context,String authToken,ArrayList<String> adapterValues) {
+            this.adapterValues = adapterValues;
+            this.mContext = context;
+            this.authtoken=authToken;
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            LayoutInflater inflater = LayoutInflater.from(
+                    parent.getContext());
+            View v = inflater.inflate(R.layout.coordinator_chip, parent, false);
+            ViewHolder vh = new ViewHolder(v);
+            return vh;
+        }
+
+
+        @Override
+        public void onBindViewHolder( final CoordinatorListAdapter.ViewHolder holder, final int position) {
+            holder.chipDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    adapterValues.remove(position);
+                    notifyDataSetChanged();
+                }
+            });
+
+            progress.setVisibility(View.VISIBLE);
+            addCoordinator.setClickable(false);
+
+            ApiClient.makeRequest(mContext, null,new HashMap<String, String>(){{put("authorization",authtoken);}}, Request.Method.GET, ApiClient.GET_PUBLIC_PROFILE_PATH + "?email=" + adapterValues.get(position), new ResponseCallback() {
+                @Override
+                public void onResponse(JSONObject jsonObject) {
+                    try {
+                        JSONObject response = jsonObject.getJSONObject("response");
+                        Glide.with(mContext)
+                                .load(response.optString("profile_picture"))
+                                .apply(RequestOptions.circleCropTransform())
+                                .into(holder.chipImage);
+                        holder.tagText.setText(response.optString("user_name","Loading.."));
+
+                        if(response.optString("user_name","").equals("")){
+                            Toast.makeText(mContext,"Email not available",Toast.LENGTH_SHORT).show();
+                            adapterValues.remove(position);
+                            notifyDataSetChanged();
+                        }
+
+                        progress.setVisibility(View.GONE);
+                        addCoordinator.setClickable(true);
+                        coordinatorInput.setText("");
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }});
+        }
+
+        public void refreshEvents(ArrayList<String> values) {
+            this.adapterValues.clear();
+            this.adapterValues.addAll(values);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getItemCount() {
+            return adapterValues.size();
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public TextView tagText;
+            public ImageView chipDelete;
+            public ImageView chipImage;
+
+            public ViewHolder(View v) {
+                super(v);
+                tagText = v.findViewById(R.id.tagText);
+                chipDelete = v.findViewById(R.id.chipDelete);
+                chipImage = v.findViewById(R.id.chipImage);
+            }
+        }
+
     }
 }

@@ -13,10 +13,10 @@ android {
     }
     buildTypes {
         debug{
-            resValue "string", "api_url", "\"http://${getIP()}\""+":5000"
+            resValue "string", "api_url", "https://kiran-eventio-backend.herokuapp.com"
         }
         production{
-            resValue "string", "api_url", "\"http://${getIP()}\""+":5000"
+            resValue "string", "api_url", "https://kiran-eventio-backend.herokuapp.com"
         }
         release {
             minifyEnabled false
@@ -40,6 +40,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.google.code.gson:gson:2.3.1'
+
+
 
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation files('libs/glide-full-4.7.0.jar')

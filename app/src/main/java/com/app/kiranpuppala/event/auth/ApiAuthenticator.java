@@ -46,7 +46,7 @@ public class ApiAuthenticator extends AbstractAccountAuthenticator {
         Log.e(LOG_TAG,"KEY_ACCOUNT_TYPE " + accountType);
 
         intent.putExtra(GetInActivity.KEY_AUTH_TYPE, authTokenType);
-        intent.putExtra(GetInActivity.KEY_IS_ADDING_NEW_ACCOUNT, true);
+//        intent.putExtra(GetInActivity.KEY_IS_ADDING_NEW_ACCOUNT, true);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
@@ -72,7 +72,7 @@ public class ApiAuthenticator extends AbstractAccountAuthenticator {
         if (TextUtils.isEmpty(authToken)||!AuthUtils.isTokenValid(mContext,authToken)) {
             final String password = am.getPassword(account);
             if (password != null) {
-                authToken = getAuthToken(account,password);
+                authToken = AuthUtils.getAuthToken(mContext,account,password);
             }
         }
 
@@ -89,9 +89,9 @@ public class ApiAuthenticator extends AbstractAccountAuthenticator {
         // need to re-prompt them for their credentials. We do that by creating
         // an intent to display our AuthenticatorActivity.
         final Intent intent = new Intent(mContext, GetInActivity.class);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-        intent.putExtra(GetInActivity.KEY_AUTH_TYPE, authTokenType);
+//        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+//        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+//        intent.putExtra(GetInActivity.KEY_AUTH_TYPE, authTokenType);
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
         return bundle;
@@ -114,30 +114,31 @@ public class ApiAuthenticator extends AbstractAccountAuthenticator {
     }
 
 
-    public String getAuthToken(Account account,String password){
-        try {
-            final Map<String,String> req = new HashMap<>();
-            req.put("email",account.name);
-            req.put("password",password);
-
-            FutureTask apiTask = new FutureTask(new Callable() {
-                @Override
-                public Object call() throws Exception {
-                    return new ApiClient().makeSyncRequest(mContext,req,null,ApiClient.LOGIN_PATH);
-                }
-            });
-
-            new Thread(apiTask).start();
-
-            JsonObject resObj = new Gson().fromJson((String)apiTask.get(), JsonObject.class);
-            if(Integer.parseInt(resObj.get("code")+"")==200){
-                 return ((JsonObject)resObj.get("response")).get("token").getAsString();
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "";
-    }
+//    public String getAuthToken(Account account,String password){
+//        try {
+//            final Map<String,String> req = new HashMap<>();
+//            req.put("email",account.name);
+//            req.put("password",password);
+//
+//            FutureTask apiTask = new FutureTask(new Callable() {
+//                @Override
+//                public Object call() throws Exception {
+//                    return new ApiClient().makeSyncRequest(mContext,req,null,ApiClient.LOGIN_PATH);
+//                }
+//            });
+//
+//            new Thread(apiTask).start();
+//
+//            JsonObject resObj = new Gson().fromJson((String)apiTask.get(), JsonObject.class);
+//
+//            if(Integer.parseInt(resObj.get("code")+"")==200){
+//                 return ((JsonObject)resObj.get("response")).get("token").getAsString();
+//            }
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return "";
+//    }
 
 }

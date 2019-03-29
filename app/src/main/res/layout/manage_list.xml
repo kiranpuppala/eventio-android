@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@color/white"
-    android:animateLayoutChanges="true"
-    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/white"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
@@ -20,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="?attr/colorPrimary" >
+            app:contentScrim="@color/white" >
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -59,57 +60,23 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
         <LinearLayout
             android:clipToPadding="false"
             android:clipChildren="false"
             android:padding="20dp"
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:gravity="center"
-                android:visibility="gone"
-                android:id="@+id/infoContainer"
-                android:layout_marginTop="40dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:tint="@color/grey"
-                    android:id="@+id/infoIcon"
-                    android:src="@drawable/add_event"
-                    />
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="Add Event"
-                    android:textSize="18dp"
-                    android:id="@+id/infoMessage"
-                    android:fontFamily="@font/sf_pro_medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-
+            android:layout_height="wrap_content">
             <android.support.v7.widget.RecyclerView
                 android:scrollbars="none"
                 android:divider="@android:color/transparent"
                 android:dividerHeight="50.0dp"
-                android:background="#fff"
+                android:background="@android:color/white"
                 android:orientation="vertical"
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-
-
         </LinearLayout>
 
-
     </android.support.v4.widget.NestedScrollView>
-
 
 </android.support.design.widget.CoordinatorLayout>

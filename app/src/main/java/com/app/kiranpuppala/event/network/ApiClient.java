@@ -57,10 +57,12 @@ public class ApiClient {
     public static String SIGNUP_PATH = "/api/register";
     public static String EDIT_PROFILE_PATH = "/api/edit-profile";
     public static String GET_PROFILE_PATH = "/api/get-profile";
+    public static String GET_PUBLIC_PROFILE_PATH = "/api/get-public-profile";
     public static String CREATE_EVENT_PATH = "/api/create-event";
     public static String JOIN_EVENT_PATH = "/api/join-event";
     public static String UPDATE_EVENT_PATH = "/api/update-event";
     public static String LIST_EVENTS_PATH = "/api/list-events";
+    public static String MANAGE_EVENTS_PATH = "/api/manage-events";
     private static  String S3_URL = "https://s3.ap-south-1.amazonaws.com/homework-event/";
 
 
@@ -170,7 +172,6 @@ public class ApiClient {
             );
 
             AmazonS3 s3 = new AmazonS3Client(credentialsProvider);
-
 
             TransferUtility transferUtility = new TransferUtility(s3, context);
             final TransferObserver observer = transferUtility.upload(

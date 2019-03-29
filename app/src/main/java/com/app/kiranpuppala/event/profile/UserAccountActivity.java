@@ -1,9 +1,5 @@
 package com.app.kiranpuppala.event.profile;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.animation.LayoutTransition;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,11 +12,11 @@ import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +25,6 @@ import com.android.volley.Request;
 import com.app.kiranpuppala.event.R;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.ResponseCallback;
-import com.app.kiranpuppala.event.onboard.GetInActivity;
 import com.app.kiranpuppala.event.utils.Constants;
 import com.app.kiranpuppala.event.utils.Session;
 import com.bumptech.glide.Glide;
@@ -42,14 +37,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.app.kiranpuppala.event.network.AuthUtils.isTokenValid;
-
 public class UserAccountActivity extends AppCompatActivity {
 
-    private View username , email,password, regdno, degree, branch, mobile, updateProfile, galleryPick;
-    private ImageView eventImage;
-    private String profilePictureUrl="";
     private static final int PICK_IMAGE_REQUEST = 101;
+    private View username, email, password, regdno, degree, branch, mobile, updateProfile, galleryPick;
+    private ImageView eventImage;
+    private String profilePictureUrl = "";
     private JSONObject profileObject = new JSONObject();
     private String authToken = "";
     private AmazonS3Client s3;
@@ -75,16 +68,9 @@ public class UserAccountActivity extends AppCompatActivity {
         setContentView(R.layout.user_account);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Profile");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        LinearLayout linearLayout = findViewById(R.id.userAccount);
-        LayoutTransition layoutTransition = new LayoutTransition();
-        layoutTransition.enableTransitionType(LayoutTransition.APPEARING);
-        linearLayout.setLayoutTransition(layoutTransition);
-        linearLayout.getLayoutTransition().enableTransitionType(LayoutTransition.APPEARING);
-
 
         username = findViewById(R.id.username);
         email = findViewById(R.id.email);
@@ -99,7 +85,7 @@ public class UserAccountActivity extends AppCompatActivity {
         galleryPick.setOnClickListener(onClickListener);
         updateProfile.setOnClickListener(onClickListener);
 
-        ((EditText)(password.findViewById(R.id.descEdit))).setTransformationMethod(new PasswordTransformationMethod());
+        ((EditText) (password.findViewById(R.id.descEdit))).setTransformationMethod(new PasswordTransformationMethod());
 
 
         TextView second_name_text = (username.findViewById(R.id.title));
@@ -173,7 +159,7 @@ public class UserAccountActivity extends AppCompatActivity {
             }
         });
 
-        if(getIntent()!=null&&getIntent().hasExtra(Constants.KEY_AUTH_TOKEN)){
+        if (getIntent() != null && getIntent().hasExtra(Constants.KEY_AUTH_TOKEN)) {
             authToken = getIntent().getStringExtra(Constants.KEY_AUTH_TOKEN);
             setProfile();
         }
@@ -181,40 +167,40 @@ public class UserAccountActivity extends AppCompatActivity {
     }
 
 
-    private void setProfile(){
-        String user_id = Session.get(getApplicationContext(),"user_id");
-        Map<String,String> headers = new HashMap<>();
-        headers.put("authorization",authToken);
+    private void setProfile() {
+        String user_id = Session.get(getApplicationContext(), "user_id");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", authToken);
 
-        ApiClient.makeRequest(UserAccountActivity.this, null,headers, Request.Method.GET, ApiClient.GET_PROFILE_PATH + "?user_id=" + user_id, new ResponseCallback() {
+        ApiClient.makeRequest(UserAccountActivity.this, null, headers, Request.Method.GET, ApiClient.GET_PROFILE_PATH + "?user_id=" + user_id, new ResponseCallback() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                try{
-                    Log.e("RESPONSEEEEEEE",jsonObject.toString());
-                    if(jsonObject.getInt("code") == 200){
-                        JSONObject response = (JSONObject)jsonObject.get("response");
+                try {
+                    Log.e("RESPONSEEEEEEE", jsonObject.toString());
+                    if (jsonObject.getInt("code") == 200) {
+                        JSONObject response = (JSONObject) jsonObject.get("response");
                         Glide.with(getBaseContext()).load(response.get("profile_picture")).into(eventImage);
-                        ((TextView)(username.findViewById(R.id.descDisplay))).setText(response.getString("user_name"));
-                        ((TextView)(regdno.findViewById(R.id.descDisplay))).setText(response.getString("reg_no"));
-                        ((TextView)(degree.findViewById(R.id.descDisplay))).setText(response.getString("degree"));
-                        ((TextView)(branch.findViewById(R.id.descDisplay))).setText(response.getString("branch"));
-                        ((TextView)(mobile.findViewById(R.id.descDisplay))).setText(response.getString("mobile"));
-                        ((TextView)(email.findViewById(R.id.descDisplay))).setText(response.getString("email"));
-                        ((TextView)(password.findViewById(R.id.descDisplay))).setText("Edit Password");
+                        ((TextView) (username.findViewById(R.id.descDisplay))).setText(response.getString("user_name"));
+                        ((TextView) (regdno.findViewById(R.id.descDisplay))).setText(response.getString("reg_no"));
+                        ((TextView) (degree.findViewById(R.id.descDisplay))).setText(response.getString("degree"));
+                        ((TextView) (branch.findViewById(R.id.descDisplay))).setText(response.getString("branch"));
+                        ((TextView) (mobile.findViewById(R.id.descDisplay))).setText(response.getString("mobile"));
+                        ((TextView) (email.findViewById(R.id.descDisplay))).setText(response.getString("email"));
+                        ((TextView) (password.findViewById(R.id.descDisplay))).setText("Edit Password");
 
-                        ((EditText)(username.findViewById(R.id.descEdit))).setText(response.getString("user_name"));
-                        ((EditText)(regdno.findViewById(R.id.descEdit))).setText(response.getString("reg_no"));
-                        ((EditText)(degree.findViewById(R.id.descEdit))).setText(response.getString("degree"));
-                        ((EditText)(branch.findViewById(R.id.descEdit))).setText(response.getString("branch"));
-                        ((EditText)(mobile.findViewById(R.id.descEdit))).setText(response.getString("mobile"));
-                        ((EditText)(email.findViewById(R.id.descEdit))).setText(response.getString("email"));
+                        ((EditText) (username.findViewById(R.id.descEdit))).setText(response.getString("user_name"));
+                        ((EditText) (regdno.findViewById(R.id.descEdit))).setText(response.getString("reg_no"));
+                        ((EditText) (degree.findViewById(R.id.descEdit))).setText(response.getString("degree"));
+                        ((EditText) (branch.findViewById(R.id.descEdit))).setText(response.getString("branch"));
+                        ((EditText) (mobile.findViewById(R.id.descEdit))).setText(response.getString("mobile"));
+                        ((EditText) (email.findViewById(R.id.descEdit))).setText(response.getString("email"));
 
 
                         profileObject = response;
                         Toast.makeText(UserAccountActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
 
                     }
-                }catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     Toast.makeText(UserAccountActivity.this, "EXCEPITON", Toast.LENGTH_SHORT).show();
 
@@ -227,8 +213,8 @@ public class UserAccountActivity extends AppCompatActivity {
     private void makeEditable(View v) {
         TextView textView = (v.findViewById(R.id.descDisplay));
         EditText editText = (v.findViewById(R.id.descEdit));
-        if(v.getId()!=R.id.password)
-        editText.setText(textView.getText());
+        if (v.getId() != R.id.password)
+            editText.setText(textView.getText());
         textView.setVisibility(View.GONE);
         editText.setVisibility(View.VISIBLE);
         editText.requestFocus();
@@ -268,41 +254,41 @@ public class UserAccountActivity extends AppCompatActivity {
             profileObject.put("mobile", ((EditText) (mobile.findViewById(R.id.descEdit))).getText());
             profileObject.put("email", ((EditText) (email.findViewById(R.id.descEdit))).getText());
             profileObject.put("password", ((EditText) (password.findViewById(R.id.descEdit))).getText());
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        try{
-              ApiClient.uploadtos3(getApplicationContext(), profilePictureFile, new ResponseCallback() {
-                    @Override
-                    public void onResponse(int response, String url) {
-                        try{
-                            if (response == ApiClient.RESPONSE_CODE.SUCCESS) {
-                                profilePictureUrl = url;
-                            }
-
-                            profileObject.put("profile_picture", url);
-
-                            Map<String,String> headers = new HashMap<>();
-                            headers.put("authorization",authToken);
-
-                            ApiClient.makeRequest(UserAccountActivity.this, profileObject,headers, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
-                                @Override
-                                public void onResponse(JSONObject jsonObject) {
-                                    if(jsonObject.optInt("code",0)==200){
-                                        Toast.makeText(UserAccountActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
-                                    }else{
-                                        Toast.makeText(UserAccountActivity.this, "Updation Error", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-
-                        }catch (Exception e){
-                            e.printStackTrace();
+        try {
+            ApiClient.uploadtos3(getApplicationContext(), profilePictureFile, new ResponseCallback() {
+                @Override
+                public void onResponse(int response, String url) {
+                    try {
+                        if (response == ApiClient.RESPONSE_CODE.SUCCESS) {
+                            profilePictureUrl = url;
                         }
+
+                        profileObject.put("profile_picture", url);
+
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("authorization", authToken);
+
+                        ApiClient.makeRequest(UserAccountActivity.this, profileObject, headers, Request.Method.POST, ApiClient.EDIT_PROFILE_PATH, new ResponseCallback() {
+                            @Override
+                            public void onResponse(JSONObject jsonObject) {
+                                if (jsonObject.optInt("code", 0) == 200) {
+                                    Toast.makeText(UserAccountActivity.this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(UserAccountActivity.this, "Updation Error", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
-            } catch (Exception e){
-                e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -337,6 +323,17 @@ public class UserAccountActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 

@@ -4,25 +4,21 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.android.volley.Request;
-import com.app.kiranpuppala.event.onboard.GetInActivity;
-import com.app.kiranpuppala.event.menu.Menu_Activity;
 import com.app.kiranpuppala.event.R;
 import com.app.kiranpuppala.event.network.ApiClient;
 import com.app.kiranpuppala.event.network.ResponseCallback;
+import com.app.kiranpuppala.event.onboard.GetInActivity;
+import com.app.kiranpuppala.event.utils.Constants;
 import com.app.kiranpuppala.event.utils.Session;
 
 import org.json.JSONArray;
@@ -42,8 +38,15 @@ public class EventManagementActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.event_list);
-        ((TextView)(findViewById(R.id.pageTitle))).setText("MANAGE");
+        setContentView(R.layout.manage_list);
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Manage Events");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         authenticate();
     }
 
@@ -61,74 +64,50 @@ public class EventManagementActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        RecyclerAdapter adapter = new RecyclerAdapter(getBaseContext(), values);
+        RecyclerAdapter adapter = new RecyclerAdapter(getBaseContext(), values,getIntent().getStringExtra(Constants.KEY_AUTH_TOKEN));
         LinearLayoutManager llm = new LinearLayoutManager(this);
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(adapter);
-
-        findViewById(R.id.menu_click).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ActivityOptionsCompat options = ActivityOptionsCompat.
-                        makeSceneTransitionAnimation(EventManagementActivity.this, android.support.v4.util.Pair.create(view, "transition"));
-                int revealX = (int) (view.getX() + view.getWidth() / 2);
-                int revealY = (int) (view.getY() + view.getHeight() / 2);
-
-                Intent intent = new Intent(EventManagementActivity.this, Menu_Activity.class);
-                intent.putExtra(Menu_Activity.EXTRA_CIRCULAR_REVEAL_X, revealX);
-                intent.putExtra(Menu_Activity.EXTRA_CIRCULAR_REVEAL_Y, revealY);
-
-                ActivityCompat.startActivity(EventManagementActivity.this, intent, options.toBundle());
-
-                startActivity(intent);
-            }
-        });
     }
 
     private void authenticate() {
-        am = AccountManager.get(this);
-        final Account account[] = (am.getAccountsByType(GetInActivity.ARG_ACCOUNT_TYPE));
-        if (account.length != 0) {
-            final AccountManagerFuture<Bundle> future = am.getAuthToken(account[0], GetInActivity.ARG_AUTH_TYPE, null, this, null, null);
-            new Thread(new Runnable() {
+
+
+            Map<String,String> headers = new HashMap<>();
+            headers.put("authorization",getIntent().getStringExtra(Constants.KEY_AUTH_TOKEN));
+            JSONObject request = new JSONObject();
+
+            try{
+                request.put("email",Session.get(getBaseContext(),"user_email"));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            ApiClient.makeRequest(EventManagementActivity.this, request, headers, Request.Method.POST, ApiClient.MANAGE_EVENTS_PATH, new ResponseCallback() {
                 @Override
-                public void run() {
-                    try {
-                        Bundle bnd = future.getResult();
-                        final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                        if(isTokenValid(getBaseContext(),authtoken)){
-                            Map<String,String> headers = new HashMap<>();
-                            headers.put("authorization",authtoken);
-
-                            JSONObject request = new JSONObject();
-                            request.put("email",Session.get(getBaseContext(),"user_email"));
-
-                            ApiClient.makeRequest(EventManagementActivity.this, request, headers, Request.Method.POST, ApiClient.LIST_EVENTS_PATH, new ResponseCallback() {
-                                @Override
-                                public void onResponse(JSONObject jsonObject) {
-                                    try{
-                                        JSONArray eventsObj = jsonObject.getJSONArray("response");
-                                        renderContent(eventsObj);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            });
-                        }else{
-                            am.invalidateAuthToken(GetInActivity.ARG_ACCOUNT_TYPE,authtoken);
-                            authenticate();
-                        }
-                    } catch (Exception e) {
+                public void onResponse(JSONObject jsonObject) {
+                    try{
+                        JSONArray eventsObj = jsonObject.getJSONArray("response");
+                        renderContent(eventsObj);
+                    }catch (Exception e){
                         e.printStackTrace();
                     }
-                }
-            }).start();
-        } else {
-            addNewAccount(GetInActivity.ARG_ACCOUNT_TYPE, GetInActivity.ARG_AUTH_TYPE);
-        }
 
+                }
+            });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 
@@ -144,37 +123,5 @@ public class EventManagementActivity extends AppCompatActivity {
                 }
             }
         }, null);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.event_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.a:
-                //Write your code
-                return true;
-            case R.id.b:
-                //Write your code
-                return true;
-            case R.id.c:
-                //Write your code
-                return true;
-            case R.id.d:
-                //Write your code
-                return true;
-            case R.id.e:
-                //Write your code
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 }

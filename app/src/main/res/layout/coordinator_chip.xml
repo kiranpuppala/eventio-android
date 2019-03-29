@@ -8,14 +8,18 @@
     android:paddingRight="3dp"
     android:layout_height="34dp">
 
-    <LinearLayout
-        android:background="@drawable/circular"
+
+    <ImageView
+        android:id="@+id/chipImage"
         android:layout_width="30dp"
-        android:layout_height="30dp"/>
+        android:layout_height="30dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        />
     
     <TextView
         android:layout_marginLeft="3dp"
-        android:text="Fashion"
+        android:text="Loading.."
         android:fontFamily="@font/sf_pro_regular"
         android:textColor="@android:color/white"
         android:textSize="12dp"

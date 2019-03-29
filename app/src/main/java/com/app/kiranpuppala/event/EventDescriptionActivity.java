@@ -28,14 +28,16 @@ public class EventDescriptionActivity extends AppCompatActivity {
 
     String authToken="";
     JSONObject eventObj;
+    Toolbar toolbar;
     private static final String LOG_TAG = "EVENT_DESCR_ACTIVITY";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_detail);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Fetching...");
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (getIntent() != null) {
@@ -58,11 +60,11 @@ public class EventDescriptionActivity extends AppCompatActivity {
     private void inflateView(){
         try{
             Glide.with(getBaseContext()).load(eventObj.optString("graphic","")).into((ImageView)findViewById(R.id.image));
-            ((TextView)(findViewById(R.id.name))).setText(eventObj.optString("name",""));
             ((TextView)(findViewById(R.id.description))).setText(eventObj.optString("description",""));
             String timings = eventObj.optString("from_date","")+" , "+eventObj.optString("from_time","")+" to "+
                     eventObj.optString("to_date",""+eventObj.optString("to_time",""));
             ((TextView)(findViewById(R.id.timings))).setText(timings);
+            toolbar.setTitle(eventObj.optString("name",""));
             ((TextView)(findViewById(R.id.venue))).setText(eventObj.optString("venue",""));
 
         }catch (Exception e){
@@ -96,6 +98,17 @@ public class EventDescriptionActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

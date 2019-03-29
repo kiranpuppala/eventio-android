@@ -1,5 +1,6 @@
 package com.app.kiranpuppala.event.management;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -34,11 +36,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     ArrayList<JSONObject> adapterValues;
     int times = 0;
     private Context context;
+    private String authToken;
 
 
-    public RecyclerAdapter(Context context, ArrayList<JSONObject> adapterValues) {
+    public RecyclerAdapter(Context context, ArrayList<JSONObject> adapterValues,String authToken) {
         this.context = context;
         this.adapterValues = adapterValues;
+        this.authToken = authToken;
     }
 
 
@@ -106,25 +110,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 public boolean onTouch(View v, MotionEvent event) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-//                            ObjectAnimator animator = ObjectAnimator.ofFloat(parent, "elevation", 0f);
-//                            animator.setInterpolator(new DecelerateInterpolator());
-//                            animator.setDuration(100);
-//                            animator.start();
+                            toggleAnimation(parent,0f);
                             return false;
-//                            break;
                         case MotionEvent.ACTION_UP:
-                            Log.e(LOG_TAG, " ACTION_UP");
-//                            parent.setElevation(15f);
+                            toggleAnimation(parent,15.0f);
                             return false;
                         case MotionEvent.ACTION_CANCEL:
-//                            parent.setElevation(15f);
-                            Log.e(LOG_TAG, " CANCEL");
-                            return false;
-                        case MotionEvent.ACTION_BUTTON_RELEASE:
-                            Log.e(LOG_TAG, " BUTTON RELEASE");
+                            toggleAnimation(parent,15.0f);
                             return false;
                     }
-
 
                     return false;
                 }
@@ -139,15 +133,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra("action", Constants.MODE_EVENT_UPDATE);
                         intent.putExtra("inputPayload", Functions.jsonToBundle(adapterValues.get(getAdapterPosition())));
+                        intent.putExtra(Constants.KEY_AUTH_TOKEN,authToken);
                         context.startActivity(intent);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
-
                 }
             });
 
+        }
+
+        public void toggleAnimation(View parent,Float value){
+            ObjectAnimator animatorrr = ObjectAnimator.ofFloat(parent, "elevation", value);
+            animatorrr.setInterpolator(new DecelerateInterpolator());
+            animatorrr.setDuration(200);
+            animatorrr.start();
         }
 
         public void adjustElevation(View v, Float elevation) {

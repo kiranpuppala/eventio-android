@@ -22,6 +22,25 @@
         <item name="colorAccent">@android:color/black</item>
     </style>
 
+    <style name="MyToolBarTheme" parent="Theme.AppCompat.NoActionBar" >
+
+        <item name="android:textColorPrimary">@color/black</item>
+
+        <item name="android:textSize">12sp</item>
+
+        <item name="android:background">@color/white</item>
+
+        <item name="actionMenuTextColor">@color/abc_primary_text_material_light</item>
+
+        <item name="android:textColorSecondary">@color/black</item>
+
+    </style>
+
+
+    <style name="AppTheme.ProgressColor">
+        <item name="colorAccent">@color/grey</item> <!-- Whatever color you want-->
+    </style>
+
     <style name="AppTheme.Transparent" parent="AppTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
